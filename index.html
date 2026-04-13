@@ -108,7 +108,7 @@ header {
 .panel::-webkit-scrollbar { width: 3px; }
 .panel::-webkit-scrollbar-thumb { background: var(--k-faint); }
 
-.panel-left  { width: 270px; flex-shrink: 0; border-right: var(--k-border); }
+.panel-left  { width: 320px; flex-shrink: 0; border-right: var(--k-border); }
 .panel-right { width: 264px; flex-shrink: 0; border-left: var(--k-border); }
 
 .p-sec { padding: 15px 18px; border-bottom: var(--k-border); }
@@ -335,6 +335,30 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 }
 .btn-generate-ghost:hover { background: var(--k-faint); }
 
+/* ── Affiliate section ── */
+.aff-divider { border: none; border-top: var(--k-border); margin: 0 0 14px; }
+.aff-row {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; padding: 8px 0;
+  border-bottom: var(--k-border); transition: opacity 0.12s;
+}
+.aff-row:last-of-type { border-bottom: none; }
+.aff-row:hover { opacity: 0.65; }
+.aff-store { font-weight: 500; font-size: 13px; color: var(--k-ink); flex-shrink: 0; }
+.aff-cat { font-size: 12px; color: var(--k-mid); flex: 1; }
+.aff-icon { font-size: 14px; color: var(--k-mid); flex-shrink: 0; }
+.aff-disclaimer { font-size: 11px; color: var(--k-mid); font-style: italic; margin-top: 10px; }
+
+/* ── Ad slot ── */
+#adSlot {
+  width: 300px; height: 250px; margin: 0 auto;
+  background: var(--k-bg); border: var(--k-border);
+  border-radius: var(--k-radius);
+  display: flex; align-items: center; justify-content: center;
+}
+.ad-placeholder-label { font-family: var(--k-mono); font-size: 10px; color: var(--k-mid); letter-spacing: 0.1em; }
+.ad-label { font-size: 10px; color: var(--k-mid); text-align: center; margin-top: 6px; }
+
 /* ── Kit expand / custom kit ── */
 .kit-expand-btn {
   background: none; border: none; padding: 0 0 14px;
@@ -444,6 +468,13 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
         <button id="shareBtn" class="share-btn-panel" onclick="openShareModal()"></button>
         <button id="shareImgBtn" class="share-btn-panel" style="margin-top:6px" onclick="openImgModal()"></button>
       </div>
+      <div class="p-sec" id="adSlotSec">
+        <div id="adSlot">
+          <!-- AD PLACEHOLDER -->
+          <span class="ad-placeholder-label">300 × 250</span>
+        </div>
+        <p class="ad-label" id="adLabel"></p>
+      </div>
     </div>
 
     <!-- MAP -->
@@ -461,9 +492,15 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
         <div class="sec-label" id="lblAnalysis"></div>
         <div id="analysisArea"><div class="empty" id="analysisEmpty"></div></div>
       </div>
-      <div class="p-sec" style="flex:1;">
+      <div class="p-sec">
         <div class="sec-label" id="lblKit"></div>
         <div id="kitArea"><div class="empty" id="kitEmpty"></div></div>
+      </div>
+      <div class="p-sec" id="affSec" style="display:none">
+        <hr class="aff-divider">
+        <div class="sec-label" id="lblAff"></div>
+        <div id="affArea"></div>
+        <p class="aff-disclaimer" id="affDisclaimer"></p>
       </div>
     </div>
 
@@ -545,12 +582,31 @@ const CONFIG = {
   baseUrl: null, // Sätts till 'https://kitadvisor.cc' när domän finns
 };
 
+const AFFILIATE = {
+  winter: {
+    sv: { store: 'Velodrom.cc', cat: 'Vinterplagg',    url: 'https://velodrom.cc/collections/winter?ref=kitadvisor' },
+    en: { store: 'Velodrom.cc', cat: 'Winter clothing', url: 'https://velodrom.cc/collections/winter?ref=kitadvisor' },
+  },
+  midseason: {
+    sv: { store: 'Velodrom.cc', cat: 'Mellansäsong',        url: 'https://velodrom.cc/collections/jackets?ref=kitadvisor' },
+    en: { store: 'Velodrom.cc', cat: 'Mid-season clothing', url: 'https://velodrom.cc/collections/jackets?ref=kitadvisor' },
+  },
+  summer: {
+    sv: { store: 'Velodrom.cc', cat: 'Sommarplagg',     url: 'https://velodrom.cc/collections/summer?ref=kitadvisor' },
+    en: { store: 'Velodrom.cc', cat: 'Summer clothing', url: 'https://velodrom.cc/collections/summer?ref=kitadvisor' },
+  },
+  rain: {
+    sv: { store: 'Velodrom.cc', cat: 'Regnjackor',   url: 'https://velodrom.cc/collections/jackets?ref=kitadvisor' },
+    en: { store: 'Velodrom.cc', cat: 'Rain jackets', url: 'https://velodrom.cc/collections/jackets?ref=kitadvisor' },
+  },
+};
+
 // ─── STATE ────────────────────────────────────────────────
 const S = {
   lang:'sv', tempUnit:'C', windUnit:'kmh', intensity:'easy',
   fcOffset:0, lat:null, lng:null, locName:'',
   wx:null, wxLive:null, hourly:null,
-  isShared:false, shareName:'', shareDate:'',
+  isShared:false, shareName:'', shareDate:'', showAff:false,
   imgTheme:'pos',
   customKit:{ upper:'', lower:'', hands:'', head:'', feet:'', rain:'' },
 };
@@ -636,6 +692,9 @@ const T = {
     imgThemePos: 'Positiv', imgThemeNeg: 'Negativ',
     kitExpandBtn: 'Lägg till ditt kit',
     kitUpdateBtn: 'Uppdatera bild',
+    affTitle: 'Utrustning från butik',
+    affDisclaimer: 'Köplänkar — provision hjälper till att driva tjänsten',
+    adLabel: 'Annons',
     kitPlaceholders: {
       upper: 'ex. Pas Normal Escapism Jacket',
       lower: 'ex. Castelli Free Aero Race',
@@ -724,6 +783,9 @@ const T = {
     imgThemePos: 'Positive', imgThemeNeg: 'Negative',
     kitExpandBtn: 'Add your kit',
     kitUpdateBtn: 'Update image',
+    affTitle: 'Shop the kit',
+    affDisclaimer: 'Affiliate links — commission helps fund this service',
+    adLabel: 'Advertisement',
     kitPlaceholders: {
       upper: 'e.g. Pas Normal Escapism Jacket',
       lower: 'e.g. Castelli Free Aero Race',
@@ -1029,6 +1091,17 @@ function renderKit(eff) {
   if(w.gusts>50) callouts+=`<div class="callout">${MANICULA}<p>${talert('gusts',Math.round(w.gusts))}</p></div>`;
 
   document.getElementById('kitArea').innerHTML=callouts+rows;
+
+  const showAff = !S.isShared || S.showAff;
+  const affSec  = document.getElementById('affSec');
+  if (showAff) {
+    renderAffiliateLinks(eff, isRain);
+    document.getElementById('lblAff').textContent        = t('affTitle');
+    document.getElementById('affDisclaimer').textContent = t('affDisclaimer');
+    affSec.style.display = 'block';
+  } else {
+    affSec.style.display = 'none';
+  }
 }
 
 // ─── SHARED MODE ─────────────────────────────────────────
@@ -1036,6 +1109,7 @@ function initFromUrl() {
   const p = new URLSearchParams(window.location.search);
   if (!p.has('lat') || !p.has('lng')) return false;
   S.isShared  = true;
+  S.showAff   = p.has('aff');
   S.shareName = p.get('name') || '';
   S.shareDate = p.get('date') || '';
   S.lat       = parseFloat(p.get('lat'));
@@ -1141,7 +1215,7 @@ function generateShareUrl() {
   const p = new URLSearchParams({
     name, date:`${date}T${time}`,
     lat:S.lat.toFixed(4), lng:S.lng.toFixed(4),
-    dur, speed, int:S.intensity, loc:S.locName,
+    dur, speed, int:S.intensity, loc:S.locName, aff:'1',
   });
   if (S.customKit.upper) p.set('ku',  S.customKit.upper);
   if (S.customKit.lower) p.set('kl',  S.customKit.lower);
@@ -1427,6 +1501,29 @@ function downloadKitImage() {
 }
 
 // ─── RENDER ALL ───────────────────────────────────────────
+// ─── AFFILIATE ────────────────────────────────────────────
+function getAffiliateLinks(eff, isRain) {
+  const links = [];
+  if (isRain) links.push(AFFILIATE.rain[S.lang]);
+  if (links.length < 2) {
+    if (eff < 7)       links.push(AFFILIATE.winter[S.lang]);
+    else if (eff <= 15) links.push(AFFILIATE.midseason[S.lang]);
+    else               links.push(AFFILIATE.summer[S.lang]);
+  }
+  return links.slice(0, 2);
+}
+
+function renderAffiliateLinks(eff, isRain) {
+  const links = getAffiliateLinks(eff, isRain);
+  document.getElementById('affArea').innerHTML = links.map(l =>
+    `<a class="aff-row" href="${l.url}" target="_blank" rel="noopener noreferrer">
+      <span class="aff-store">${l.store}</span>
+      <span class="aff-cat">${l.cat}</span>
+      <i class="ph ph-arrow-square-out aff-icon"></i>
+    </a>`
+  ).join('');
+}
+
 function renderAll() { if(!S.wx) return; renderWeather(S.wx); renderAnalysis(); }
 
 // ─── UPDATE UI LABELS ─────────────────────────────────────
@@ -1468,6 +1565,7 @@ function updateLabels() {
   document.getElementById('ckFeet').placeholder   = ph.feet;
   document.getElementById('ckRain').placeholder   = ph.rain;
   document.getElementById('kitUpdateBtn').textContent = t('kitUpdateBtn');
+  document.getElementById('adLabel').textContent      = t('adLabel');
   document.getElementById('ownRideLink').textContent  =t('ownRide');
   document.getElementById('modalTitle').textContent   =t('shareModal');
   document.getElementById('lblShareName').textContent =t('rideName');

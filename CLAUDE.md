@@ -60,9 +60,18 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 
 ## Roadmap (prioritetsordning)
 1. ~~Delningsbar turlink~~ — klar
-2. Delningsbar kit-bild — Canvas API, transparent PNG, Instagram-ratio (1080x1920)
-3. Affiliate-sektion — Velodrom.cc via Awin, kontextuell, tydlig etikett
+2. ~~Delningsbar kit-bild~~ — klar (Canvas API, 1080×1920, pos/neg tema, eget kit)
+3. ~~Affiliate-sektion~~ — klar (Velodrom.cc, AFFILIATE-objekt, kontextuell, aff=1 i URL)
 4. Gratis MCP — Cloudflare Workers eller Railway
+
+### Fas 3 — Affiliate-sektion + annonsplats
+- AFFILIATE-objekt i CONFIG-blocket: winter/midseason/summer/rain per sv/en
+- getAffiliateLinks(eff, isRain) → max 2 kontextuella länkar
+- renderAffiliateLinks() → populerar #affArea med .aff-row
+- affSec visas alltid i normalt läge; i delat läge bara om aff=1 i URL
+- generateShareUrl lägger alltid till aff=1
+- panel-left breddad 270→320px för annonsplats
+- #adSlotSec i vänsterpanelen: 300×250 placeholder under delningsknapparna
 
 ## Känt beteende / quirks
 - Safari kräver explicit pixelhöjd på #map (inte flex-baserat) + invalidateSize() x2
