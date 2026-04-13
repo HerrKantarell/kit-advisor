@@ -335,6 +335,24 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 }
 .btn-generate-ghost:hover { background: var(--k-faint); }
 
+/* ── Kit expand / custom kit ── */
+.kit-expand-btn {
+  background: none; border: none; padding: 0 0 14px;
+  font-family: var(--k-mono); font-size: 11px; color: var(--k-mid);
+  cursor: pointer; display: flex; align-items: center; gap: 5px;
+  letter-spacing: 0.04em; transition: color 0.12s;
+}
+.kit-expand-btn:hover { color: var(--k-ink); }
+.kit-custom-section { border-top: var(--k-border); padding-top: 14px; }
+.kit-tag {
+  font-family: var(--k-mono); font-size: 10px;
+  background: var(--k-orange-tt);
+  border: 0.5px solid rgba(217,107,31,0.2);
+  color: var(--k-orange); border-radius: 100px;
+  padding: 2px 7px; display: inline-block;
+  margin-left: 6px; vertical-align: middle;
+}
+
 /* ── Shared mode ── */
 .is-shared input[type=range] { opacity: 0.45; pointer-events: none; cursor: default; }
 .is-shared .int-btn { opacity: 0.45; pointer-events: none; cursor: default; }
@@ -468,6 +486,17 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
         </div>
       </div>
       <div class="form-summary" id="formSummary"></div>
+      <button class="kit-expand-btn" id="kitExpandBtn" onclick="toggleKitExpand()">
+        <span id="kitExpandIcon">+</span><span id="kitExpandLabel"></span>
+      </button>
+      <div id="kitCustomSection" style="display:none">
+        <div class="form-row"><label id="lckUpper"></label><input type="text" id="ckUpper" autocomplete="off"></div>
+        <div class="form-row"><label id="lckLower"></label><input type="text" id="ckLower" autocomplete="off"></div>
+        <div class="form-row"><label id="lckHands"></label><input type="text" id="ckHands" autocomplete="off"></div>
+        <div class="form-row"><label id="lckHead"></label><input type="text" id="ckHead" autocomplete="off"></div>
+        <div class="form-row"><label id="lckFeet"></label><input type="text" id="ckFeet" autocomplete="off"></div>
+        <div class="form-row" id="ckRainRow" style="display:none"><label id="lckRain"></label><input type="text" id="ckRain" autocomplete="off"></div>
+      </div>
       <button class="btn-generate" id="generateBtn" onclick="generateShareUrl()"></button>
       <div class="share-url-row" id="shareUrlRow" style="display:none">
         <input type="text" id="shareUrlInput" readonly onclick="this.select()">
@@ -515,6 +544,7 @@ const S = {
   wx:null, wxLive:null, hourly:null,
   isShared:false, shareName:'', shareDate:'',
   imgTheme:'pos',
+  customKit:{ upper:'', lower:'', hands:'', head:'', feet:'', rain:'' },
 };
 
 // ─── i18n ─────────────────────────────────────────────────
@@ -596,6 +626,15 @@ const T = {
     downloadImage: 'Ladda ner .png',
     rendering: 'Renderar…',
     imgThemePos: 'Positiv', imgThemeNeg: 'Negativ',
+    kitExpandBtn: 'Lägg till ditt kit',
+    kitPlaceholders: {
+      upper: 'ex. Pas Normal Escapism Jacket',
+      lower: 'ex. Castelli Free Aero Race',
+      hands: 'ex. Rapha Pro Team Mitts',
+      head:  'ex. Castelli Viva',
+      feet:  'ex. Shimano S-Phyre RC9',
+      rain:  'ex. Rapha Classic Rain Jacket',
+    },
   },
   en: {
     title:'Kit Advisor — Cycling Clothing by Weather',
@@ -674,6 +713,15 @@ const T = {
     downloadImage: 'Download .png',
     rendering: 'Rendering…',
     imgThemePos: 'Positive', imgThemeNeg: 'Negative',
+    kitExpandBtn: 'Add your kit',
+    kitPlaceholders: {
+      upper: 'e.g. Pas Normal Escapism Jacket',
+      lower: 'e.g. Castelli Free Aero Race',
+      hands: 'e.g. Rapha Pro Team Mitts',
+      head:  'e.g. Castelli Viva',
+      feet:  'e.g. Shimano S-Phyre RC9',
+      rain:  'e.g. Rapha Classic Rain Jacket',
+    },
   },
 };
 
@@ -984,6 +1032,14 @@ function initFromUrl() {
   S.lng       = parseFloat(p.get('lng'));
   S.locName   = decodeURIComponent(p.get('loc') || '');
   S.intensity = ['easy','mod','hard'].includes(p.get('int')) ? p.get('int') : 'easy';
+  S.customKit = {
+    upper: p.get('ku')  || '',
+    lower: p.get('kl')  || '',
+    hands: p.get('kh')  || '',
+    head:  p.get('khe') || '',
+    feet:  p.get('kf')  || '',
+    rain:  p.get('kr')  || '',
+  };
   const dur   = parseFloat(p.get('dur') || '2');
   const speed = parseInt(p.get('speed') || '28');
   document.getElementById('durSlider').value   = dur;
@@ -1049,6 +1105,14 @@ function openShareModal() {
   document.getElementById('shareTimeInput').value = now.toTimeString().substring(0, 5);
   document.getElementById('shareNameInput').value = '';
   document.getElementById('shareUrlRow').style.display = 'none';
+  // show rain field only when rain is expected
+  const isRain = S.wx && (S.wx.precip > 0.3 || S.wx.wcode >= 51);
+  document.getElementById('ckRainRow').style.display = isRain ? 'block' : 'none';
+  // pre-fill custom kit inputs from state (populated by initFromUrl in shared mode)
+  populateKitInputs();
+  // reset expand state
+  document.getElementById('kitCustomSection').style.display = 'none';
+  document.getElementById('kitExpandIcon').textContent = '+';
   updateModalSummary();
   document.getElementById('shareModal').style.display = 'flex';
 }
@@ -1065,6 +1129,7 @@ function updateModalSummary() {
 }
 
 function generateShareUrl() {
+  readCustomKit();
   const name  = document.getElementById('shareNameInput').value.trim();
   const date  = document.getElementById('shareDateInput').value;
   const time  = document.getElementById('shareTimeInput').value || '08:00';
@@ -1076,6 +1141,12 @@ function generateShareUrl() {
     lat:S.lat.toFixed(4), lng:S.lng.toFixed(4),
     dur, speed, int:S.intensity, loc:S.locName,
   });
+  if (S.customKit.upper) p.set('ku',  S.customKit.upper);
+  if (S.customKit.lower) p.set('kl',  S.customKit.lower);
+  if (S.customKit.hands) p.set('kh',  S.customKit.hands);
+  if (S.customKit.head)  p.set('khe', S.customKit.head);
+  if (S.customKit.feet)  p.set('kf',  S.customKit.feet);
+  if (S.customKit.rain)  p.set('kr',  S.customKit.rain);
   document.getElementById('shareUrlInput').value = `${base}?${p.toString()}`;
   document.getElementById('shareUrlRow').style.display = 'flex';
 }
@@ -1094,13 +1165,51 @@ function copyShareUrl() {
   } else { doFallback(); onCopied(); }
 }
 
+// ─── CUSTOM KIT ──────────────────────────────────────────
+function readCustomKit() {
+  S.customKit.upper = (document.getElementById('ckUpper').value  || '').trim();
+  S.customKit.lower = (document.getElementById('ckLower').value  || '').trim();
+  S.customKit.hands = (document.getElementById('ckHands').value  || '').trim();
+  S.customKit.head  = (document.getElementById('ckHead').value   || '').trim();
+  S.customKit.feet  = (document.getElementById('ckFeet').value   || '').trim();
+  S.customKit.rain  = (document.getElementById('ckRain').value   || '').trim();
+}
+
+function populateKitInputs() {
+  document.getElementById('ckUpper').value = S.customKit.upper;
+  document.getElementById('ckLower').value = S.customKit.lower;
+  document.getElementById('ckHands').value = S.customKit.hands;
+  document.getElementById('ckHead').value  = S.customKit.head;
+  document.getElementById('ckFeet').value  = S.customKit.feet;
+  document.getElementById('ckRain').value  = S.customKit.rain;
+}
+
+function toggleKitExpand() {
+  const sec  = document.getElementById('kitCustomSection');
+  const icon = document.getElementById('kitExpandIcon');
+  const open = sec.style.display === 'none';
+  sec.style.display = open ? 'block' : 'none';
+  icon.textContent  = open ? '−' : '+';
+}
+
+function makeTag(text) {
+  if (!text || text.length <= 8) return '';
+  const words = text.trim().split(/\s+/);
+  if (words.length < 2) return '';
+  return words.map(w => w[0]).join('').toUpperCase();
+}
+
 // ─── KIT IMAGE ───────────────────────────────────────────
 function collectKitItems(eff, w) {
   const dur = parseFloat(document.getElementById('durSlider').value);
   const isRain = w.precip > 0.3 || w.wcode >= 51;
   const heavyRain = w.wcode >= 65 || w.precip > 2;
   const items = [];
-  const add = (cat, key) => { const [name] = tkit(key); items.push({ cat: t(cat), name }); };
+  const add = (cat, key) => {
+    const [name] = tkit(key);
+    const catKey = cat === 'rainprot' ? 'rain' : cat;
+    items.push({ cat: t(cat), name, catKey });
+  };
 
   if (eff >= 22) {
     add('upper','jersey_short'); add('lower','bib_shorts');
@@ -1222,16 +1331,27 @@ async function generateKitImage() {
   hline(y); y += 60;
 
   // ── Kit items
+  readCustomKit();
   const items = collectKitItems(eff, S.wx);
   const catSize  = 20;
   const nameSize = 36;
+  const tagSize  = 20;
   for (const item of items) {
     ctx.font = `400 ${catSize}px ${mono}`; ctx.fillStyle = mid;
     ctx.fillText(item.cat.toUpperCase(), m, bl(y, catSize));
     y += catSize * 1.3 + 10;
 
+    const custom      = S.customKit[item.catKey] || '';
+    const displayName = custom || item.name;
+    const tag         = custom ? makeTag(custom) : '';
+
     ctx.font = `400 ${nameSize}px ${sans}`; ctx.fillStyle = ink;
-    ctx.fillText(item.name, m, bl(y, nameSize), W - m * 2);
+    const nameMaxW = tag ? W - m * 2 - 130 : W - m * 2;
+    ctx.fillText(displayName, m, bl(y, nameSize), nameMaxW);
+    if (tag) {
+      ctx.font = `400 ${tagSize}px ${mono}`; ctx.fillStyle = mid;
+      ctx.fillText(`[${tag}]`, m + nameMaxW + 16, bl(y, tagSize));
+    }
     y += nameSize * 1.3 + 28;
   }
 
@@ -1316,6 +1436,20 @@ function updateLabels() {
   document.getElementById('copyImgBtn').innerHTML      =`<i class="ph ph-copy" style="font-size:14px;"></i>${t('copyImage')}`;
   document.getElementById('imgThemePos').textContent  =t('imgThemePos');
   document.getElementById('imgThemeNeg').textContent  =t('imgThemeNeg');
+  document.getElementById('kitExpandLabel').textContent = t('kitExpandBtn');
+  const ph = t('kitPlaceholders');
+  document.getElementById('lckUpper').textContent = t('upper');
+  document.getElementById('lckLower').textContent = t('lower');
+  document.getElementById('lckHands').textContent = t('hands');
+  document.getElementById('lckHead').textContent  = t('head');
+  document.getElementById('lckFeet').textContent  = t('feet');
+  document.getElementById('lckRain').textContent  = t('rainprot');
+  document.getElementById('ckUpper').placeholder  = ph.upper;
+  document.getElementById('ckLower').placeholder  = ph.lower;
+  document.getElementById('ckHands').placeholder  = ph.hands;
+  document.getElementById('ckHead').placeholder   = ph.head;
+  document.getElementById('ckFeet').placeholder   = ph.feet;
+  document.getElementById('ckRain').placeholder   = ph.rain;
   document.getElementById('ownRideLink').textContent  =t('ownRide');
   document.getElementById('modalTitle').textContent   =t('shareModal');
   document.getElementById('lblShareName').textContent =t('rideName');
