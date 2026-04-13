@@ -227,13 +227,14 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 }
 
 /* ── Share button ── */
-.share-btn {
-  border: var(--k-border); background: var(--k-bg); color: var(--k-mid);
-  font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.04em;
-  padding: 4px 10px; border-radius: var(--k-radius-sm); cursor: pointer;
-  transition: all 0.12s; flex-shrink: 0; white-space: nowrap;
+.share-btn-panel {
+  width: 100%; border: var(--k-border); background: var(--k-bg); color: var(--k-mid);
+  font-family: var(--k-sans); font-size: 12px; font-weight: 500;
+  padding: 8px 12px; border-radius: var(--k-radius-sm); cursor: pointer;
+  transition: all 0.12s; text-align: center; display: flex;
+  align-items: center; justify-content: center; gap: 7px;
 }
-.share-btn:hover { background: var(--k-faint); color: var(--k-ink); }
+.share-btn-panel:hover { border-color: var(--k-orange); color: var(--k-orange); }
 
 /* ── Own-ride link ── */
 .own-ride-link {
@@ -352,7 +353,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
         <button class="tog" data-v="ms">m/s</button>
       </div>
     </div>
-    <button id="shareBtn" class="share-btn" style="display:none" onclick="openShareModal()"></button>
     <a id="ownRideLink" class="own-ride-link" style="display:none"></a>
     <div class="status-pill" id="statusChip">—</div>
   </header>
@@ -396,6 +396,9 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
             <button class="int-btn" data-int="hard" id="intHard"></button>
           </div>
         </div>
+      </div>
+      <div class="p-sec" id="shareBtnSec" style="display:none">
+        <button id="shareBtn" class="share-btn-panel" onclick="openShareModal()"></button>
       </div>
     </div>
 
@@ -681,7 +684,7 @@ async function selectLocation(lat, lng) {
       applySharedMode();
     } else {
       document.getElementById('fcBlock').style.display='block';
-      document.getElementById('shareBtn').style.display='flex';
+      document.getElementById('shareBtnSec').style.display='block';
     }
     renderAll();
     setStatus('ready');
@@ -959,7 +962,7 @@ function applySharedDateOffset() {
 function applySharedMode() {
   document.getElementById('app').classList.add('is-shared');
   map.off('click');
-  document.getElementById('shareBtn').style.display = 'none';
+  document.getElementById('shareBtnSec').style.display = 'none';
   const ownLink = document.getElementById('ownRideLink');
   ownLink.href = CONFIG.baseUrl || (window.location.origin + window.location.pathname);
   ownLink.style.display = 'flex';
@@ -1054,7 +1057,7 @@ function updateLabels() {
   document.getElementById('intHard').textContent     =t('hard');
   document.getElementById('mapHintText').textContent  =t('mapHint');
   document.getElementById('speedLabel').textContent   =speedKmh()+' km/h';
-  document.getElementById('shareBtn').textContent     =t('shareBtn');
+  document.getElementById('shareBtn').innerHTML        =`<i class="ph ph-share-network" style="font-size:14px;"></i>${t('shareBtn')}`;
   document.getElementById('ownRideLink').textContent  =t('ownRide');
   document.getElementById('modalTitle').textContent   =t('shareModal');
   document.getElementById('lblShareName').textContent =t('rideName');
