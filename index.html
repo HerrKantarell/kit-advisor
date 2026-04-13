@@ -485,6 +485,12 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
       <button class="modal-close" onclick="closeImgModal()">×</button>
     </div>
     <div class="modal-body">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+        <div class="tog-grp" id="imgThemeTog">
+          <button class="tog active" data-v="pos" id="imgThemePos"></button>
+          <button class="tog" data-v="neg" id="imgThemeNeg"></button>
+        </div>
+      </div>
       <div class="img-preview-wrap">
         <canvas id="kitCanvas" width="1080" height="1920"></canvas>
       </div>
@@ -508,6 +514,7 @@ const S = {
   fcOffset:0, lat:null, lng:null, locName:'',
   wx:null, wxLive:null, hourly:null,
   isShared:false, shareName:'', shareDate:'',
+  imgTheme:'pos',
 };
 
 // ─── i18n ─────────────────────────────────────────────────
@@ -588,6 +595,7 @@ const T = {
     copyImage: 'Kopiera bild',
     downloadImage: 'Ladda ner .png',
     rendering: 'Renderar…',
+    imgThemePos: 'Positiv', imgThemeNeg: 'Negativ',
   },
   en: {
     title:'Kit Advisor — Cycling Clothing by Weather',
@@ -665,6 +673,7 @@ const T = {
     copyImage: 'Copy image',
     downloadImage: 'Download .png',
     rendering: 'Rendering…',
+    imgThemePos: 'Positive', imgThemeNeg: 'Negative',
   },
 };
 
@@ -1116,114 +1125,119 @@ function collectKitItems(eff, w) {
 
 async function generateKitImage() {
   await document.fonts.load('italic 400 80px "Playfair Display"');
-  const canvas = document.getElementById('kitCanvas');
-  const ctx = canvas.getContext('2d');
-  const W = 1080, H = 1920;
+  const canvas  = document.getElementById('kitCanvas');
+  const ctx     = canvas.getContext('2d');
+  const W = 1080, H = 1920, m = 80;
+  const isDark  = S.imgTheme === 'neg';
+
   ctx.clearRect(0, 0, W, H);
+  if (isDark) { ctx.fillStyle = '#111111'; ctx.fillRect(0, 0, W, H); }
 
-  const m = 80; // margin
-  const ink = '#111111', mid = '#666662', faint = '#E2E2DF', orange = '#D96B1F';
-  const monoStack = '"Courier New", Courier, monospace';
-  const sansStack = 'Arial, Helvetica, sans-serif';
-  const serifStack = '"Playfair Display", Georgia, serif';
+  const ink  = isDark ? '#F0F0EE' : '#111111';
+  const mid  = isDark ? '#888884' : '#666662';
+  const div  = isDark ? '#2A2A28' : '#E2E2DF';
+  const mono = '"Courier New", Courier, monospace';
+  const sans = 'Arial, Helvetica, sans-serif';
+  const seri = '"Playfair Display", Georgia, serif';
 
-  const hline = (y) => {
-    ctx.save(); ctx.strokeStyle = faint; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(m, y); ctx.lineTo(W - m, y); ctx.stroke(); ctx.restore();
+  // y always = top of current block.
+  // Baseline for a given font size ≈ top + fontSize * 0.78
+  const bl = (top, size) => top + size * 0.78;
+
+  const hline = (top) => {
+    ctx.save(); ctx.strokeStyle = div; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(m, top); ctx.lineTo(W - m, top); ctx.stroke();
+    ctx.restore();
   };
 
-  // ── Manicula (top-left, ~72×72, orange)
+  let y = 80;
+
+  // ── Manicula (80×80)
   ctx.save();
-  ctx.translate(m, 72);
-  ctx.scale(72/1000, 72/1000);
-  ctx.fillStyle = orange;
+  ctx.translate(m, y);
+  ctx.scale(80/1000, 80/1000);
+  ctx.fillStyle = ink;
   ctx.fill(new Path2D(MANICULA_PATH));
   ctx.restore();
 
-  // ── Brand
-  ctx.font = `400 26px ${monoStack}`;
-  ctx.fillStyle = mid;
-  ctx.textAlign = 'right';
-  ctx.fillText('Kit/Advisor', W - m, 116);
+  // ── Brand — right-aligned, mid-height of manicula
+  ctx.font = `400 26px ${mono}`; ctx.fillStyle = mid; ctx.textAlign = 'right';
+  ctx.fillText('Kit/Advisor', W - m, y + 50);
   ctx.textAlign = 'left';
+  y += 80 + 52; // bottom of manicula + gap → 212
 
-  // ── Location name
-  let y = 250;
-  ctx.font = `italic 400 70px ${serifStack}`;
-  ctx.fillStyle = ink;
-  ctx.fillText(S.locName || '', m, y, W - m * 2);
+  // ── Location name (Playfair italic, 68px)
+  const locSize = 68;
+  ctx.font = `italic 400 ${locSize}px ${seri}`; ctx.fillStyle = ink;
+  ctx.fillText(S.locName || '', m, bl(y, locSize), W - m * 2);
+  y += locSize * 1.3; // full line-height → 212 + 88 = 300
 
-  // ── Ride name (shared mode)
+  // ── Ride name if shared
   if (S.shareName) {
-    y += 68;
-    ctx.font = `italic 400 42px ${serifStack}`;
-    ctx.fillStyle = orange;
-    ctx.fillText(S.shareName, m, y, W - m * 2);
+    const rnSize = 40;
+    ctx.font = `italic 400 ${rnSize}px ${seri}`; ctx.fillStyle = ink;
+    ctx.fillText(S.shareName, m, bl(y, rnSize), W - m * 2);
+    y += rnSize * 1.3 + 8; // → 300 + 60 = 360
   }
+  y += 16; // gap before meta
 
-  // ── Meta
-  y += 60;
-  ctx.font = `400 30px ${sansStack}`;
-  ctx.fillStyle = mid;
+  // ── Meta (30px sans)
+  const metaSize = 30;
+  ctx.font = `400 ${metaSize}px ${sans}`; ctx.fillStyle = mid;
   const dur = parseFloat(document.getElementById('durSlider').value);
   const parts = [];
   if (S.shareDate) {
-    const d = new Date(S.shareDate);
-    parts.push(d.toLocaleString(S.lang === 'sv' ? 'sv-SE' : 'en-GB',
-      { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }));
+    parts.push(new Date(S.shareDate).toLocaleString(
+      S.lang === 'sv' ? 'sv-SE' : 'en-GB',
+      { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }
+    ));
   }
   parts.push(`${dur.toFixed(1)} h · ${speedKmh()} km/h · ${t(S.intensity)}`);
-  ctx.fillText(parts.join('  ·  '), m, y, W - m * 2);
+  ctx.fillText(parts.join('  ·  '), m, bl(y, metaSize), W - m * 2);
+  y += metaSize * 1.3 + 52; // → ~414
 
-  // ── Divider
-  y += 56; hline(y);
+  // ── Divider 1
+  hline(y); y += 64;
 
-  // ── Effective temp
+  // ── "Feels like" label (22px mono caps)
+  const lblSize = 22;
+  ctx.font = `400 ${lblSize}px ${mono}`; ctx.fillStyle = mid;
+  ctx.fillText(t('effTemp').toUpperCase(), m, bl(y, lblSize));
+  y += lblSize * 1.3 + 16; // → ~507
+
+  // ── Effective temp (150px mono)
+  const effSize = 150;
   const { eff } = calcEff(S.wx);
-  y += 58;
-  ctx.font = `400 24px ${monoStack}`;
-  ctx.fillStyle = mid;
-  ctx.fillText(t('effTemp').toUpperCase(), m, y);
+  ctx.font = `400 ${effSize}px ${mono}`; ctx.fillStyle = ink;
+  ctx.fillText(fmtEffTemp(eff), m, bl(y, effSize));
+  y += effSize * 1.2 + 36; // → ~723
 
-  let effColor = '#3d7a52';
-  if (eff < 13) effColor = '#2e6ea6';
-  if (eff < 6)  effColor = '#5a48b4';
-  if (eff < 0)  effColor = '#8040b0';
-  if (eff > 24) effColor = '#b83c3c';
+  // ── Weather icon + description + temp (44px sans)
+  const wxSize = 44;
+  ctx.font = `400 ${wxSize}px ${sans}`; ctx.fillStyle = mid;
+  ctx.fillText(`${wIcon(S.wx.wcode)}  ${wDesc(S.wx.wcode)}  ·  ${fmtTemp(S.wx.temp)}`, m, bl(y, wxSize), W - m * 2);
+  y += wxSize * 1.3 + 64; // → ~821
 
-  y += 148;
-  ctx.font = `400 160px ${monoStack}`;
-  ctx.fillStyle = effColor;
-  ctx.fillText(fmtEffTemp(eff), m, y);
-
-  // ── Weather icon + description
-  y += 28;
-  ctx.font = `400 52px ${sansStack}`;
-  ctx.fillStyle = mid;
-  ctx.fillText(`${wIcon(S.wx.wcode)}  ${wDesc(S.wx.wcode)}  ·  ${fmtTemp(S.wx.temp)}`, m, y, W - m * 2);
-
-  // ── Divider
-  y += 64; hline(y);
+  // ── Divider 2
+  hline(y); y += 60;
 
   // ── Kit items
-  y += 54;
   const items = collectKitItems(eff, S.wx);
+  const catSize  = 20;
+  const nameSize = 36;
   for (const item of items) {
-    ctx.font = `400 22px ${monoStack}`;
-    ctx.fillStyle = mid;
-    ctx.fillText(item.cat.toUpperCase(), m, y);
-    y += 36;
-    ctx.font = `500 38px ${sansStack}`;
-    ctx.fillStyle = ink;
-    ctx.fillText(item.name, m, y, W - m * 2);
-    y += 54;
+    ctx.font = `400 ${catSize}px ${mono}`; ctx.fillStyle = mid;
+    ctx.fillText(item.cat.toUpperCase(), m, bl(y, catSize));
+    y += catSize * 1.3 + 10;
+
+    ctx.font = `400 ${nameSize}px ${sans}`; ctx.fillStyle = ink;
+    ctx.fillText(item.name, m, bl(y, nameSize), W - m * 2);
+    y += nameSize * 1.3 + 28;
   }
 
   // ── Footer
-  hline(H - 88);
-  ctx.font = `400 24px ${monoStack}`;
-  ctx.fillStyle = mid;
-  ctx.textAlign = 'center';
+  hline(H - 80);
+  ctx.font = `400 22px ${mono}`; ctx.fillStyle = mid; ctx.textAlign = 'center';
   ctx.fillText('herrkantarell.github.io/kit-advisor', W / 2, H - 44);
   ctx.textAlign = 'left';
 }
@@ -1300,6 +1314,8 @@ function updateLabels() {
   document.getElementById('imgModalTitle').textContent =t('imgModalTitle');
   document.getElementById('downloadImgBtn').innerHTML  =`<i class="ph ph-download-simple" style="font-size:14px;"></i>${t('downloadImage')}`;
   document.getElementById('copyImgBtn').innerHTML      =`<i class="ph ph-copy" style="font-size:14px;"></i>${t('copyImage')}`;
+  document.getElementById('imgThemePos').textContent  =t('imgThemePos');
+  document.getElementById('imgThemeNeg').textContent  =t('imgThemeNeg');
   document.getElementById('ownRideLink').textContent  =t('ownRide');
   document.getElementById('modalTitle').textContent   =t('shareModal');
   document.getElementById('lblShareName').textContent =t('rideName');
@@ -1355,6 +1371,7 @@ bindToggle('windTog','windUnit', ()=>{
   // Speed slider always stays in km/h — only weather wind cells update
   if(S.wx) renderAll();
 });
+bindToggle('imgThemeTog','imgTheme', async ()=>{ if(S.wx) await generateKitImage(); });
 
 // ─── SLIDER BINDINGS ─────────────────────────────────────
 document.getElementById('durSlider').addEventListener('input', function(){
