@@ -317,6 +317,24 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 .btn-copy:hover { background: var(--k-faint); color: var(--k-ink); }
 .btn-copy.copied { border-color: #5a9e6f; color: #3d7a52; background: rgba(90,158,111,0.06); }
 
+/* ── Image modal additions ── */
+.img-preview-wrap {
+  width: 100%; max-height: 360px; overflow-y: auto;
+  border: var(--k-border); border-radius: var(--k-radius-sm);
+  background: var(--k-bg); margin-bottom: 14px;
+}
+#kitCanvas { width: 100%; height: auto; display: block; }
+.img-actions { display: flex; gap: 8px; }
+.img-actions .btn-generate { flex: 1; margin-bottom: 0; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.btn-generate-ghost {
+  flex: 1; background: transparent; color: var(--k-ink);
+  border: var(--k-border); border-radius: var(--k-radius-sm); padding: 9px 18px;
+  font-family: var(--k-sans); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.12s;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.btn-generate-ghost:hover { background: var(--k-faint); }
+
 /* ── Shared mode ── */
 .is-shared input[type=range] { opacity: 0.45; pointer-events: none; cursor: default; }
 .is-shared .int-btn { opacity: 0.45; pointer-events: none; cursor: default; }
@@ -399,6 +417,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
       </div>
       <div class="p-sec" id="shareBtnSec" style="display:none">
         <button id="shareBtn" class="share-btn-panel" onclick="openShareModal()"></button>
+        <button id="shareImgBtn" class="share-btn-panel" style="margin-top:6px" onclick="openImgModal()"></button>
       </div>
     </div>
 
@@ -453,6 +472,25 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
       <div class="share-url-row" id="shareUrlRow" style="display:none">
         <input type="text" id="shareUrlInput" readonly onclick="this.select()">
         <button class="btn-copy" id="copyBtn" onclick="copyShareUrl()"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Image modal ── -->
+<div id="imgModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeImgModal()">
+  <div class="modal-card">
+    <div class="modal-hd">
+      <span class="modal-title" id="imgModalTitle"></span>
+      <button class="modal-close" onclick="closeImgModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="img-preview-wrap">
+        <canvas id="kitCanvas" width="1080" height="1920"></canvas>
+      </div>
+      <div class="img-actions">
+        <button id="copyImgBtn" class="btn-generate" onclick="copyKitImage()"></button>
+        <button id="downloadImgBtn" class="btn-generate-ghost" onclick="downloadKitImage()"></button>
       </div>
     </div>
   </div>
@@ -545,6 +583,11 @@ const T = {
     ridePassed: 'Turen har passerat — visar senast tillgänglig data.',
     forecastUncertain: 'Prognos med osäkerhet — uppdateras närmre startdagen.',
     forecastUnavailable: d => `Prognos tillgänglig fr.o.m. ${d}.`,
+    shareImageBtn: 'Dela som bild',
+    imgModalTitle: 'Kit-kort',
+    copyImage: 'Kopiera bild',
+    downloadImage: 'Ladda ner .png',
+    rendering: 'Renderar…',
   },
   en: {
     title:'Kit Advisor — Cycling Clothing by Weather',
@@ -617,6 +660,11 @@ const T = {
     ridePassed: 'This ride has passed — showing last available data.',
     forecastUncertain: 'Forecast with uncertainty — check again closer to the ride.',
     forecastUnavailable: d => `Forecast available from ${d}.`,
+    shareImageBtn: 'Share as image',
+    imgModalTitle: 'Kit card',
+    copyImage: 'Copy image',
+    downloadImage: 'Download .png',
+    rendering: 'Rendering…',
   },
 };
 
@@ -1037,6 +1085,196 @@ function copyShareUrl() {
   } else { doFallback(); onCopied(); }
 }
 
+// ─── KIT IMAGE ───────────────────────────────────────────
+function collectKitItems(eff, w) {
+  const dur = parseFloat(document.getElementById('durSlider').value);
+  const isRain = w.precip > 0.3 || w.wcode >= 51;
+  const heavyRain = w.wcode >= 65 || w.precip > 2;
+  const items = [];
+  const add = (cat, key) => { const [name] = tkit(key); items.push({ cat: t(cat), name }); };
+
+  if (eff >= 22) {
+    add('upper','jersey_short'); add('lower','bib_shorts');
+  } else if (eff >= 17) {
+    add('upper','jersey_arm'); add('lower','bib_shorts'); add('hands','gloves_light');
+  } else if (eff >= 12) {
+    add('upper','jersey_long'); add('lower','bib_shorts_k'); add('hands','gloves_thin'); add('head','ear_warmer');
+  } else if (eff >= 7) {
+    add('upper','jersey_thermo'); add('lower','bibtights'); add('hands','gloves_winter'); add('head','ear_band');
+  } else if (eff >= 2) {
+    add('upper','jacket_winter'); add('lower','bibtights_w'); add('hands','gloves_heavy'); add('head','hat'); add('feet','shoe_cover');
+  } else {
+    add('upper','jacket_double'); add('lower','bibtights_dbl'); add('hands','gloves_extreme'); add('head','balaclava'); add('feet','shoe_winter');
+  }
+  if (isRain) {
+    add('rainprot','rain_jacket'); add('eyes','glasses');
+    if (heavyRain) add('feet','waterproof');
+  }
+  if (dur > 3) add('pack','vest');
+  return items;
+}
+
+async function generateKitImage() {
+  await document.fonts.load('italic 400 80px "Playfair Display"');
+  const canvas = document.getElementById('kitCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1920;
+  ctx.clearRect(0, 0, W, H);
+
+  const m = 80; // margin
+  const ink = '#111111', mid = '#666662', faint = '#E2E2DF', orange = '#D96B1F';
+  const monoStack = '"Courier New", Courier, monospace';
+  const sansStack = 'Arial, Helvetica, sans-serif';
+  const serifStack = '"Playfair Display", Georgia, serif';
+
+  const hline = (y) => {
+    ctx.save(); ctx.strokeStyle = faint; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(m, y); ctx.lineTo(W - m, y); ctx.stroke(); ctx.restore();
+  };
+
+  // ── Manicula (top-left, ~72×72, orange)
+  ctx.save();
+  ctx.translate(m, 72);
+  ctx.scale(72/1000, 72/1000);
+  ctx.fillStyle = orange;
+  ctx.fill(new Path2D(MANICULA_PATH));
+  ctx.restore();
+
+  // ── Brand
+  ctx.font = `400 26px ${monoStack}`;
+  ctx.fillStyle = mid;
+  ctx.textAlign = 'right';
+  ctx.fillText('Kit/Advisor', W - m, 116);
+  ctx.textAlign = 'left';
+
+  // ── Location name
+  let y = 250;
+  ctx.font = `italic 400 70px ${serifStack}`;
+  ctx.fillStyle = ink;
+  ctx.fillText(S.locName || '', m, y, W - m * 2);
+
+  // ── Ride name (shared mode)
+  if (S.shareName) {
+    y += 68;
+    ctx.font = `italic 400 42px ${serifStack}`;
+    ctx.fillStyle = orange;
+    ctx.fillText(S.shareName, m, y, W - m * 2);
+  }
+
+  // ── Meta
+  y += 60;
+  ctx.font = `400 30px ${sansStack}`;
+  ctx.fillStyle = mid;
+  const dur = parseFloat(document.getElementById('durSlider').value);
+  const parts = [];
+  if (S.shareDate) {
+    const d = new Date(S.shareDate);
+    parts.push(d.toLocaleString(S.lang === 'sv' ? 'sv-SE' : 'en-GB',
+      { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }));
+  }
+  parts.push(`${dur.toFixed(1)} h · ${speedKmh()} km/h · ${t(S.intensity)}`);
+  ctx.fillText(parts.join('  ·  '), m, y, W - m * 2);
+
+  // ── Divider
+  y += 56; hline(y);
+
+  // ── Effective temp
+  const { eff } = calcEff(S.wx);
+  y += 58;
+  ctx.font = `400 24px ${monoStack}`;
+  ctx.fillStyle = mid;
+  ctx.fillText(t('effTemp').toUpperCase(), m, y);
+
+  let effColor = '#3d7a52';
+  if (eff < 13) effColor = '#2e6ea6';
+  if (eff < 6)  effColor = '#5a48b4';
+  if (eff < 0)  effColor = '#8040b0';
+  if (eff > 24) effColor = '#b83c3c';
+
+  y += 148;
+  ctx.font = `400 160px ${monoStack}`;
+  ctx.fillStyle = effColor;
+  ctx.fillText(fmtEffTemp(eff), m, y);
+
+  // ── Weather icon + description
+  y += 28;
+  ctx.font = `400 52px ${sansStack}`;
+  ctx.fillStyle = mid;
+  ctx.fillText(`${wIcon(S.wx.wcode)}  ${wDesc(S.wx.wcode)}  ·  ${fmtTemp(S.wx.temp)}`, m, y, W - m * 2);
+
+  // ── Divider
+  y += 64; hline(y);
+
+  // ── Kit items
+  y += 54;
+  const items = collectKitItems(eff, S.wx);
+  for (const item of items) {
+    ctx.font = `400 22px ${monoStack}`;
+    ctx.fillStyle = mid;
+    ctx.fillText(item.cat.toUpperCase(), m, y);
+    y += 36;
+    ctx.font = `500 38px ${sansStack}`;
+    ctx.fillStyle = ink;
+    ctx.fillText(item.name, m, y, W - m * 2);
+    y += 54;
+  }
+
+  // ── Footer
+  hline(H - 88);
+  ctx.font = `400 24px ${monoStack}`;
+  ctx.fillStyle = mid;
+  ctx.textAlign = 'center';
+  ctx.fillText('herrkantarell.github.io/kit-advisor', W / 2, H - 44);
+  ctx.textAlign = 'left';
+}
+
+async function openImgModal() {
+  if (!S.wx) return;
+  document.getElementById('imgModal').style.display = 'flex';
+  const copyBtn = document.getElementById('copyImgBtn');
+  const dlBtn   = document.getElementById('downloadImgBtn');
+  copyBtn.textContent = t('rendering');
+  copyBtn.disabled = true;
+  dlBtn.disabled   = true;
+  await generateKitImage();
+  copyBtn.disabled = false;
+  dlBtn.disabled   = false;
+  copyBtn.innerHTML = `<i class="ph ph-copy" style="font-size:14px;"></i>${t('copyImage')}`;
+  dlBtn.innerHTML   = `<i class="ph ph-download-simple" style="font-size:14px;"></i>${t('downloadImage')}`;
+  const hasClipboard = window.isSecureContext && navigator.clipboard && typeof ClipboardItem !== 'undefined';
+  copyBtn.style.display = hasClipboard ? 'flex' : 'none';
+}
+
+function closeImgModal() {
+  document.getElementById('imgModal').style.display = 'none';
+}
+
+function copyKitImage() {
+  const canvas = document.getElementById('kitCanvas');
+  const btn = document.getElementById('copyImgBtn');
+  canvas.toBlob(async blob => {
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      btn.innerHTML = `<i class="ph ph-check" style="font-size:14px;"></i>${t('copied')}`;
+      setTimeout(() => {
+        btn.innerHTML = `<i class="ph ph-copy" style="font-size:14px;"></i>${t('copyImage')}`;
+      }, 2000);
+    } catch(e) { console.error('clipboard write failed', e); }
+  });
+}
+
+function downloadKitImage() {
+  const canvas = document.getElementById('kitCanvas');
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kit-${(S.locName || 'ride').replace(/[^a-z0-9]/gi, '-').toLowerCase()}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
 // ─── RENDER ALL ───────────────────────────────────────────
 function renderAll() { if(!S.wx) return; renderWeather(S.wx); renderAnalysis(); }
 
@@ -1058,6 +1296,10 @@ function updateLabels() {
   document.getElementById('mapHintText').textContent  =t('mapHint');
   document.getElementById('speedLabel').textContent   =speedKmh()+' km/h';
   document.getElementById('shareBtn').innerHTML        =`<i class="ph ph-share-network" style="font-size:14px;"></i>${t('shareBtn')}`;
+  document.getElementById('shareImgBtn').innerHTML     =`<i class="ph ph-image" style="font-size:14px;"></i>${t('shareImageBtn')}`;
+  document.getElementById('imgModalTitle').textContent =t('imgModalTitle');
+  document.getElementById('downloadImgBtn').innerHTML  =`<i class="ph ph-download-simple" style="font-size:14px;"></i>${t('downloadImage')}`;
+  document.getElementById('copyImgBtn').innerHTML      =`<i class="ph ph-copy" style="font-size:14px;"></i>${t('copyImage')}`;
   document.getElementById('ownRideLink').textContent  =t('ownRide');
   document.getElementById('modalTitle').textContent   =t('shareModal');
   document.getElementById('lblShareName').textContent =t('rideName');
