@@ -344,6 +344,13 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 }
 .kit-expand-btn:hover { color: var(--k-ink); }
 .kit-custom-section { border-top: var(--k-border); padding-top: 14px; }
+.kit-update-btn {
+  width: 100%; background: var(--k-bg); color: var(--k-ink);
+  border: var(--k-border); border-radius: var(--k-radius-sm); padding: 7px 14px;
+  font-family: var(--k-sans); font-size: 12px; cursor: pointer;
+  transition: background 0.12s; margin-bottom: 14px;
+}
+.kit-update-btn:hover { background: var(--k-faint); }
 .kit-tag {
   font-family: var(--k-mono); font-size: 10px;
   background: var(--k-orange-tt);
@@ -486,17 +493,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
         </div>
       </div>
       <div class="form-summary" id="formSummary"></div>
-      <button class="kit-expand-btn" id="kitExpandBtn" onclick="toggleKitExpand()">
-        <span id="kitExpandIcon">+</span><span id="kitExpandLabel"></span>
-      </button>
-      <div id="kitCustomSection" style="display:none">
-        <div class="form-row"><label id="lckUpper"></label><input type="text" id="ckUpper" autocomplete="off"></div>
-        <div class="form-row"><label id="lckLower"></label><input type="text" id="ckLower" autocomplete="off"></div>
-        <div class="form-row"><label id="lckHands"></label><input type="text" id="ckHands" autocomplete="off"></div>
-        <div class="form-row"><label id="lckHead"></label><input type="text" id="ckHead" autocomplete="off"></div>
-        <div class="form-row"><label id="lckFeet"></label><input type="text" id="ckFeet" autocomplete="off"></div>
-        <div class="form-row" id="ckRainRow" style="display:none"><label id="lckRain"></label><input type="text" id="ckRain" autocomplete="off"></div>
-      </div>
       <button class="btn-generate" id="generateBtn" onclick="generateShareUrl()"></button>
       <div class="share-url-row" id="shareUrlRow" style="display:none">
         <input type="text" id="shareUrlInput" readonly onclick="this.select()">
@@ -519,6 +515,18 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
           <button class="tog active" data-v="pos" id="imgThemePos"></button>
           <button class="tog" data-v="neg" id="imgThemeNeg"></button>
         </div>
+      </div>
+      <button class="kit-expand-btn" id="kitExpandBtn" onclick="toggleKitExpand()">
+        <span id="kitExpandIcon">+</span><span id="kitExpandLabel"></span>
+      </button>
+      <div id="kitCustomSection" style="display:none">
+        <div class="form-row"><label id="lckUpper"></label><input type="text" id="ckUpper" autocomplete="off"></div>
+        <div class="form-row"><label id="lckLower"></label><input type="text" id="ckLower" autocomplete="off"></div>
+        <div class="form-row"><label id="lckHands"></label><input type="text" id="ckHands" autocomplete="off"></div>
+        <div class="form-row"><label id="lckHead"></label><input type="text" id="ckHead" autocomplete="off"></div>
+        <div class="form-row"><label id="lckFeet"></label><input type="text" id="ckFeet" autocomplete="off"></div>
+        <div class="form-row" id="ckRainRow" style="display:none"><label id="lckRain"></label><input type="text" id="ckRain" autocomplete="off"></div>
+        <button class="kit-update-btn" id="kitUpdateBtn" onclick="reRenderKitImage()"></button>
       </div>
       <div class="img-preview-wrap">
         <canvas id="kitCanvas" width="1080" height="1920"></canvas>
@@ -627,6 +635,7 @@ const T = {
     rendering: 'Renderar…',
     imgThemePos: 'Positiv', imgThemeNeg: 'Negativ',
     kitExpandBtn: 'Lägg till ditt kit',
+    kitUpdateBtn: 'Uppdatera bild',
     kitPlaceholders: {
       upper: 'ex. Pas Normal Escapism Jacket',
       lower: 'ex. Castelli Free Aero Race',
@@ -714,6 +723,7 @@ const T = {
     rendering: 'Rendering…',
     imgThemePos: 'Positive', imgThemeNeg: 'Negative',
     kitExpandBtn: 'Add your kit',
+    kitUpdateBtn: 'Update image',
     kitPlaceholders: {
       upper: 'e.g. Pas Normal Escapism Jacket',
       lower: 'e.g. Castelli Free Aero Race',
@@ -1105,14 +1115,6 @@ function openShareModal() {
   document.getElementById('shareTimeInput').value = now.toTimeString().substring(0, 5);
   document.getElementById('shareNameInput').value = '';
   document.getElementById('shareUrlRow').style.display = 'none';
-  // show rain field only when rain is expected
-  const isRain = S.wx && (S.wx.precip > 0.3 || S.wx.wcode >= 51);
-  document.getElementById('ckRainRow').style.display = isRain ? 'block' : 'none';
-  // pre-fill custom kit inputs from state (populated by initFromUrl in shared mode)
-  populateKitInputs();
-  // reset expand state
-  document.getElementById('kitCustomSection').style.display = 'none';
-  document.getElementById('kitExpandIcon').textContent = '+';
   updateModalSummary();
   document.getElementById('shareModal').style.display = 'flex';
 }
@@ -1364,6 +1366,14 @@ async function generateKitImage() {
 
 async function openImgModal() {
   if (!S.wx) return;
+  // show rain field only when rain is expected
+  const isRain = S.wx.precip > 0.3 || S.wx.wcode >= 51;
+  document.getElementById('ckRainRow').style.display = isRain ? 'block' : 'none';
+  // pre-fill inputs from state (populated by initFromUrl in shared mode)
+  populateKitInputs();
+  // reset expand state
+  document.getElementById('kitCustomSection').style.display = 'none';
+  document.getElementById('kitExpandIcon').textContent = '+';
   document.getElementById('imgModal').style.display = 'flex';
   const copyBtn = document.getElementById('copyImgBtn');
   const dlBtn   = document.getElementById('downloadImgBtn');
@@ -1377,6 +1387,13 @@ async function openImgModal() {
   dlBtn.innerHTML   = `<i class="ph ph-download-simple" style="font-size:14px;"></i>${t('downloadImage')}`;
   const hasClipboard = window.isSecureContext && navigator.clipboard && typeof ClipboardItem !== 'undefined';
   copyBtn.style.display = hasClipboard ? 'flex' : 'none';
+}
+
+async function reRenderKitImage() {
+  const btn = document.getElementById('kitUpdateBtn');
+  btn.disabled = true;
+  await generateKitImage();
+  btn.disabled = false;
 }
 
 function closeImgModal() {
@@ -1450,6 +1467,7 @@ function updateLabels() {
   document.getElementById('ckHead').placeholder   = ph.head;
   document.getElementById('ckFeet').placeholder   = ph.feet;
   document.getElementById('ckRain').placeholder   = ph.rain;
+  document.getElementById('kitUpdateBtn').textContent = t('kitUpdateBtn');
   document.getElementById('ownRideLink').textContent  =t('ownRide');
   document.getElementById('modalTitle').textContent   =t('shareModal');
   document.getElementById('lblShareName').textContent =t('rideName');
