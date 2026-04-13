@@ -225,6 +225,106 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
   .panel { width: 100% !important; overflow-y: visible; height: auto; border-left: none !important; border-right: none !important; border-bottom: var(--k-border); }
   .panel-right { border-bottom: none; }
 }
+
+/* ── Share button ── */
+.share-btn {
+  border: var(--k-border); background: var(--k-bg); color: var(--k-mid);
+  font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.04em;
+  padding: 4px 10px; border-radius: var(--k-radius-sm); cursor: pointer;
+  transition: all 0.12s; flex-shrink: 0; white-space: nowrap;
+}
+.share-btn:hover { background: var(--k-faint); color: var(--k-ink); }
+
+/* ── Own-ride link ── */
+.own-ride-link {
+  font-family: var(--k-mono); font-size: 10px; color: var(--k-mid);
+  text-decoration: none; flex-shrink: 0; white-space: nowrap;
+  letter-spacing: 0.04em; align-items: center;
+}
+.own-ride-link:hover { color: var(--k-ink); }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(17,17,17,0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-card {
+  background: var(--k-white); border: var(--k-border);
+  border-radius: var(--k-radius); width: 100%; max-width: 420px;
+  box-shadow: 0 8px 32px rgba(17,17,17,0.12);
+}
+.modal-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 14px; border-bottom: var(--k-border);
+}
+.modal-title {
+  font-family: var(--k-serif); font-style: italic; font-size: 17px;
+  color: var(--k-ink);
+}
+.modal-close {
+  border: none; background: none; color: var(--k-mid); font-size: 18px;
+  cursor: pointer; line-height: 1; padding: 2px 6px;
+}
+.modal-close:hover { color: var(--k-ink); }
+.modal-body { padding: 18px 20px 20px; }
+.form-row { margin-bottom: 14px; }
+.form-row label {
+  display: block; font-family: var(--k-mono); font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--k-mid);
+  margin-bottom: 6px;
+}
+.form-row input[type=text],
+.form-row input[type=date],
+.form-row input[type=time] {
+  width: 100%; background: var(--k-bg); border: var(--k-border);
+  border-radius: var(--k-radius-sm); padding: 8px 11px;
+  font-size: 13px; font-family: var(--k-sans); color: var(--k-ink); outline: none;
+  -webkit-appearance: none;
+}
+.form-row input[type=text]:focus,
+.form-row input[type=date]:focus,
+.form-row input[type=time]:focus { border-color: var(--k-orange); }
+.form-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-summary {
+  font-family: var(--k-mono); font-size: 11px; color: var(--k-mid);
+  margin-bottom: 16px; padding: 8px 11px;
+  background: var(--k-bg); border: var(--k-border); border-radius: var(--k-radius-sm);
+}
+.btn-generate {
+  width: 100%; background: var(--k-ink); color: var(--k-white);
+  border: none; border-radius: var(--k-radius-sm); padding: 9px 18px;
+  font-family: var(--k-sans); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: opacity 0.12s; margin-bottom: 12px;
+}
+.btn-generate:hover { opacity: 0.85; }
+.share-url-row { display: flex; gap: 8px; align-items: center; }
+.share-url-row input {
+  flex: 1; background: var(--k-bg); border: var(--k-border);
+  border-radius: var(--k-radius-sm); padding: 7px 10px;
+  font-family: var(--k-mono); font-size: 11px; color: var(--k-mid); outline: none;
+}
+.btn-copy {
+  border: var(--k-border); background: var(--k-bg); color: var(--k-mid);
+  padding: 7px 12px; border-radius: var(--k-radius-sm); cursor: pointer;
+  font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.04em;
+  transition: all 0.12s; white-space: nowrap; flex-shrink: 0;
+}
+.btn-copy:hover { background: var(--k-faint); color: var(--k-ink); }
+.btn-copy.copied { border-color: #5a9e6f; color: #3d7a52; background: rgba(90,158,111,0.06); }
+
+/* ── Shared mode ── */
+.is-shared input[type=range] { opacity: 0.45; pointer-events: none; cursor: default; }
+.is-shared .int-btn { opacity: 0.45; pointer-events: none; cursor: default; }
+.is-shared .int-btn:hover { border-color: var(--k-faint) !important; color: var(--k-mid) !important; background: var(--k-bg) !important; }
+.is-shared #fcBlock { display: none !important; }
+
+@media (max-width: 480px) {
+  .form-row-2col { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -252,6 +352,8 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
         <button class="tog" data-v="ms">m/s</button>
       </div>
     </div>
+    <button id="shareBtn" class="share-btn" style="display:none" onclick="openShareModal()"></button>
+    <a id="ownRideLink" class="own-ride-link" style="display:none"></a>
     <div class="status-pill" id="statusChip">—</div>
   </header>
 
@@ -321,12 +423,50 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
   </div>
 </div>
 
+<!-- ── Share modal ── -->
+<div id="shareModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeShareModal()">
+  <div class="modal-card">
+    <div class="modal-hd">
+      <span class="modal-title" id="modalTitle"></span>
+      <button class="modal-close" onclick="closeShareModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label id="lblShareName"></label>
+        <input type="text" id="shareNameInput" maxlength="60" autocomplete="off">
+      </div>
+      <div class="form-row form-row-2col">
+        <div>
+          <label id="lblShareDate"></label>
+          <input type="date" id="shareDateInput">
+        </div>
+        <div>
+          <label id="lblShareTime"></label>
+          <input type="time" id="shareTimeInput">
+        </div>
+      </div>
+      <div class="form-summary" id="formSummary"></div>
+      <button class="btn-generate" id="generateBtn" onclick="generateShareUrl()"></button>
+      <div class="share-url-row" id="shareUrlRow" style="display:none">
+        <input type="text" id="shareUrlInput" readonly onclick="this.select()">
+        <button class="btn-copy" id="copyBtn" onclick="copyShareUrl()"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+// ─── CONFIG ───────────────────────────────────────────────
+const CONFIG = {
+  baseUrl: null, // Sätts till 'https://kitadvisor.cc' när domän finns
+};
+
 // ─── STATE ────────────────────────────────────────────────
 const S = {
   lang:'sv', tempUnit:'C', windUnit:'kmh', intensity:'easy',
   fcOffset:0, lat:null, lng:null, locName:'',
   wx:null, wxLive:null, hourly:null,
+  isShared:false, shareName:'', shareDate:'',
 };
 
 // ─── i18n ─────────────────────────────────────────────────
@@ -388,6 +528,20 @@ const T = {
       longRide:  'Du kyls ned mot slutet. Ha ett extra lager i bakfickan.',
       startCold: 'Klä för hur det känns 15 min in på turen, inte vid starten.',
     },
+    shareBtn: 'Dela tur',
+    shareModal: 'Skapa turlink',
+    rideName: 'Turnamn',
+    rideDate: 'Datum',
+    rideTime: 'Starttid',
+    generateLink: 'Generera länk',
+    copyLink: 'Kopiera',
+    copied: 'Kopierad',
+    ownRide: 'Skapa din egen →',
+    rideNamePlaceholder: 'ex. Söndagsturen Amager',
+    sharedConfig: 'Turkonfiguration (låst)',
+    ridePassed: 'Turen har passerat — visar senast tillgänglig data.',
+    forecastUncertain: 'Prognos med osäkerhet — uppdateras närmre startdagen.',
+    forecastUnavailable: d => `Prognos tillgänglig fr.o.m. ${d}.`,
   },
   en: {
     title:'Kit Advisor — Cycling Clothing by Weather',
@@ -446,6 +600,20 @@ const T = {
       longRide:  'You will cool down toward the end. Keep a spare layer in your pocket.',
       startCold: 'Dress for how it feels 15 min in, not at the very start.',
     },
+    shareBtn: 'Share ride',
+    shareModal: 'Create ride link',
+    rideName: 'Ride name',
+    rideDate: 'Date',
+    rideTime: 'Start time',
+    generateLink: 'Generate link',
+    copyLink: 'Copy',
+    copied: 'Copied',
+    ownRide: 'Create your own →',
+    rideNamePlaceholder: 'e.g. Sunday ride Amager',
+    sharedConfig: 'Ride setup (locked)',
+    ridePassed: 'This ride has passed — showing last available data.',
+    forecastUncertain: 'Forecast with uncertainty — check again closer to the ride.',
+    forecastUnavailable: d => `Forecast available from ${d}.`,
   },
 };
 
@@ -495,18 +663,28 @@ async function selectLocation(lat, lng) {
   document.getElementById('fcSlider').value=0;
   placeMarker(lat,lng);
   document.getElementById('mapHint').style.display='none';
-  document.getElementById('locCoords').textContent=`${lat.toFixed(4)}° N  ${lng.toFixed(4)}° E`;
+  if (!S.isShared) {
+    document.getElementById('locCoords').textContent=`${lat.toFixed(4)}° N  ${lng.toFixed(4)}° E`;
+  }
   setStatus('loading');
   document.getElementById('wxArea').innerHTML='<div class="loading-row"><span class="spinner"></span></div>';
   document.getElementById('analysisArea').innerHTML='<div class="empty"></div>';
   document.getElementById('kitArea').innerHTML='<div class="empty"></div>';
   try {
-    const [weather,name] = await Promise.all([fetchWeather(lat,lng), reverseGeocode(lat,lng)]);
-    S.wxLive=weather; S.wx=weather; S.locName=name;
-    setLocName(name);
+    const days = S.isShared ? 16 : 2;
+    const [weather,name] = await Promise.all([fetchWeather(lat,lng,days), reverseGeocode(lat,lng)]);
+    S.wxLive=weather; S.wx=weather;
+    if (!S.isShared) S.locName=name;
+    setLocName(S.isShared ? (S.shareName||name) : name);
+    if (S.isShared) {
+      applySharedDateOffset();
+      applySharedMode();
+    } else {
+      document.getElementById('fcBlock').style.display='block';
+      document.getElementById('shareBtn').style.display='flex';
+    }
     renderAll();
     setStatus('ready');
-    document.getElementById('fcBlock').style.display='block';
     updateFcLabel();
   } catch(e) {
     console.error(e);
@@ -528,8 +706,8 @@ function setStatus(state) {
 }
 
 // ─── WEATHER FETCH ────────────────────────────────────────
-async function fetchWeather(lat, lng) {
-  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&current=temperature_2m,wind_speed_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code&wind_speed_unit=kmh&timezone=auto&forecast_days=2`;
+async function fetchWeather(lat, lng, days=2) {
+  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&current=temperature_2m,wind_speed_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code&wind_speed_unit=kmh&timezone=auto&forecast_days=${days}`;
   const r=await fetch(url);
   if(!r.ok) throw new Error('API');
   const d=await r.json();
@@ -633,7 +811,20 @@ function renderAnalysis() {
   if(durP<0) bd+=`<br>${t('durPen')}: ${durP}°`;
   if(humP<0) bd+=`<br>${t('humPen')}: ${humP}°`;
 
+  let horizonHtml = '';
+  if (S.isShared && S.shareDate) {
+    const daysAway = (new Date(S.shareDate) - new Date()) / (1000*3600*24);
+    if (daysAway < -0.5) {
+      horizonHtml = `<div class="callout">${MANICULA}<p>${t('ridePassed')}</p></div>`;
+    } else if (daysAway > 10) {
+      horizonHtml = `<div class="callout">${MANICULA}<p>${t('forecastUnavailable')(fmtDate(new Date(S.shareDate)))}</p></div>`;
+    } else if (daysAway > 3) {
+      horizonHtml = `<div class="callout">${MANICULA}<p>${t('forecastUncertain')}</p></div>`;
+    }
+  }
+
   document.getElementById('analysisArea').innerHTML=`
+    ${horizonHtml}
     <div class="eff-card">
       <div>
         <div class="eff-label">${t('effTemp')}</div>
@@ -722,6 +913,127 @@ function renderKit(eff) {
   document.getElementById('kitArea').innerHTML=callouts+rows;
 }
 
+// ─── SHARED MODE ─────────────────────────────────────────
+function initFromUrl() {
+  const p = new URLSearchParams(window.location.search);
+  if (!p.has('lat') || !p.has('lng')) return false;
+  S.isShared  = true;
+  S.shareName = p.get('name') || '';
+  S.shareDate = p.get('date') || '';
+  S.lat       = parseFloat(p.get('lat'));
+  S.lng       = parseFloat(p.get('lng'));
+  S.locName   = decodeURIComponent(p.get('loc') || '');
+  S.intensity = ['easy','mod','hard'].includes(p.get('int')) ? p.get('int') : 'easy';
+  const dur   = parseFloat(p.get('dur') || '2');
+  const speed = parseInt(p.get('speed') || '28');
+  document.getElementById('durSlider').value   = dur;
+  document.getElementById('durLabel').textContent = dur.toFixed(1)+' h';
+  document.getElementById('speedSlider').value = speed;
+  document.getElementById('speedLabel').textContent = speed+' km/h';
+  document.querySelectorAll('.int-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.int === S.intensity)
+  );
+  return true;
+}
+
+function applySharedDateOffset() {
+  if (!S.shareDate || !S.hourly) return;
+  const targetStr = S.shareDate.substring(0, 16);
+  let idx = S.hourly.times.findIndex(ts => ts.startsWith(targetStr));
+  if (idx < 0) {
+    const target = new Date(S.shareDate).getTime();
+    let minDiff = Infinity;
+    S.hourly.times.forEach((ts, i) => {
+      const diff = Math.abs(new Date(ts).getTime() - target);
+      if (diff < minDiff) { minDiff = diff; idx = i; }
+    });
+  }
+  if (idx >= 0) {
+    const offset = idx - S.hourly.nowIdx;
+    S.fcOffset = Math.max(0, offset);
+    document.getElementById('fcSlider').value = S.fcOffset;
+    S.wx = wxAtOffset(S.fcOffset);
+  }
+}
+
+function applySharedMode() {
+  document.getElementById('app').classList.add('is-shared');
+  map.off('click');
+  document.getElementById('shareBtn').style.display = 'none';
+  const ownLink = document.getElementById('ownRideLink');
+  ownLink.href = CONFIG.baseUrl || (window.location.origin + window.location.pathname);
+  ownLink.style.display = 'flex';
+  if (S.shareDate) {
+    document.getElementById('locCoords').textContent = fmtSharedDate();
+  }
+}
+
+function fmtDate(d) {
+  return d.toLocaleDateString(S.lang==='sv' ? 'sv-SE' : 'en-GB', { day:'numeric', month:'long' });
+}
+
+function fmtSharedDate() {
+  if (!S.shareDate) return '';
+  const d = new Date(S.shareDate);
+  return d.toLocaleString(S.lang==='sv' ? 'sv-SE' : 'en-GB', {
+    weekday:'short', month:'short', day:'numeric',
+    hour:'2-digit', minute:'2-digit',
+  });
+}
+
+// ─── SHARE MODAL ─────────────────────────────────────────
+function openShareModal() {
+  if (!S.lat) return;
+  const now = new Date();
+  document.getElementById('shareDateInput').value = now.toISOString().substring(0, 10);
+  document.getElementById('shareTimeInput').value = now.toTimeString().substring(0, 5);
+  document.getElementById('shareNameInput').value = '';
+  document.getElementById('shareUrlRow').style.display = 'none';
+  updateModalSummary();
+  document.getElementById('shareModal').style.display = 'flex';
+}
+
+function closeShareModal() {
+  document.getElementById('shareModal').style.display = 'none';
+}
+
+function updateModalSummary() {
+  const dur   = parseFloat(document.getElementById('durSlider').value);
+  const speed = parseInt(document.getElementById('speedSlider').value);
+  document.getElementById('formSummary').textContent =
+    `${dur.toFixed(1)} h · ${speed} km/h · ${t(S.intensity)}`;
+}
+
+function generateShareUrl() {
+  const name  = document.getElementById('shareNameInput').value.trim();
+  const date  = document.getElementById('shareDateInput').value;
+  const time  = document.getElementById('shareTimeInput').value || '08:00';
+  const dur   = document.getElementById('durSlider').value;
+  const speed = document.getElementById('speedSlider').value;
+  const base  = CONFIG.baseUrl || (window.location.origin + window.location.pathname);
+  const p = new URLSearchParams({
+    name, date:`${date}T${time}`,
+    lat:S.lat.toFixed(4), lng:S.lng.toFixed(4),
+    dur, speed, int:S.intensity, loc:S.locName,
+  });
+  document.getElementById('shareUrlInput').value = `${base}?${p.toString()}`;
+  document.getElementById('shareUrlRow').style.display = 'flex';
+}
+
+function copyShareUrl() {
+  const input = document.getElementById('shareUrlInput');
+  const btn   = document.getElementById('copyBtn');
+  const doFallback = () => { input.select(); document.execCommand('copy'); };
+  const onCopied = () => {
+    btn.textContent = t('copied');
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = t('copyLink'); btn.classList.remove('copied'); }, 2000);
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(input.value).then(onCopied).catch(doFallback);
+  } else { doFallback(); onCopied(); }
+}
+
 // ─── RENDER ALL ───────────────────────────────────────────
 function renderAll() { if(!S.wx) return; renderWeather(S.wx); renderAnalysis(); }
 
@@ -740,8 +1052,22 @@ function updateLabels() {
   document.getElementById('intEasy').textContent     =t('easy');
   document.getElementById('intMod').textContent      =t('mod');
   document.getElementById('intHard').textContent     =t('hard');
-  document.getElementById('mapHintText').textContent =t('mapHint');
-  document.getElementById('speedLabel').textContent  =speedKmh()+' km/h';
+  document.getElementById('mapHintText').textContent  =t('mapHint');
+  document.getElementById('speedLabel').textContent   =speedKmh()+' km/h';
+  document.getElementById('shareBtn').textContent     =t('shareBtn');
+  document.getElementById('ownRideLink').textContent  =t('ownRide');
+  document.getElementById('modalTitle').textContent   =t('shareModal');
+  document.getElementById('lblShareName').textContent =t('rideName');
+  document.getElementById('lblShareDate').textContent =t('rideDate');
+  document.getElementById('lblShareTime').textContent =t('rideTime');
+  document.getElementById('generateBtn').textContent  =t('generateLink');
+  document.getElementById('copyBtn').textContent      =t('copyLink');
+  document.getElementById('shareNameInput').placeholder=t('rideNamePlaceholder');
+  if (S.isShared) {
+    document.getElementById('lblConfig').textContent = t('sharedConfig');
+    if (S.shareName) setLocName(S.shareName);
+    if (S.shareDate) document.getElementById('locCoords').textContent = fmtSharedDate();
+  }
 
   // Placeholder if no location
   if(!S.wx) {
@@ -810,9 +1136,14 @@ document.querySelectorAll('.int-btn').forEach(btn=>{
 });
 
 // ─── INIT ─────────────────────────────────────────────────
+const hasSharedUrl = initFromUrl();
 updateLabels();
 setStatus('waiting');
-selectLocation(55.6761, 12.5683);
+if (hasSharedUrl) {
+  selectLocation(S.lat, S.lng);
+} else {
+  selectLocation(55.6761, 12.5683);
+}
 </script>
 </body>
 </html>
