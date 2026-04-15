@@ -15,7 +15,7 @@
   --k-ink:         #111111;
   --k-bg:          #F7F7F5;
   --k-white:       #FFFFFF;
-  --k-mid:         #666662;
+  --k-mid:         #5a5a57;
   --k-faint:       #E2E2DF;
   --k-orange:      #D96B1F;
   --k-orange-tt:   rgba(217,107,31,0.06);
@@ -34,7 +34,7 @@ html, body {
   background: var(--k-bg);
   color: var(--k-ink);
   font-family: var(--k-sans);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -69,7 +69,8 @@ header {
 .tog-grp button {
   border: none; background: transparent; color: var(--k-mid);
   font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.04em;
-  padding: 4px 8px; cursor: pointer; transition: all 0.12s; line-height: 1;
+  padding: 6px 10px; cursor: pointer; transition: all 0.12s; line-height: 1;
+  min-height: 32px;
 }
 .tog-grp button:not(:last-child) { border-right: var(--k-border); }
 .tog-grp button.active { background: var(--k-ink); color: var(--k-white); }
@@ -114,7 +115,7 @@ header {
 .p-sec { padding: 15px 18px; border-bottom: var(--k-border); }
 .p-sec:last-child { border-bottom: none; }
 
-.sec-label { font-family: var(--k-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 11px; }
+.sec-label { font-family: var(--k-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 11px; }
 
 /* ── Map ── */
 .map-wrap { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden; }
@@ -140,7 +141,7 @@ header {
 /* ── Weather grid ── */
 .wx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .wx-cell { background: var(--k-bg); border: var(--k-border); border-radius: var(--k-radius-sm); padding: 9px 11px; }
-.wx-cell .wl { font-family: var(--k-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 3px; }
+.wx-cell .wl { font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 3px; }
 .wx-cell .wv { font-family: var(--k-mono); font-size: 19px; color: var(--k-ink); line-height: 1; }
 .wx-cell .wu { font-size: 11px; color: var(--k-mid); }
 .wx-cell.wx-hi { border-color: rgba(217,107,31,0.3); background: var(--k-orange-tt); }
@@ -159,13 +160,13 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 
 /* ── Intensity ── */
 .int-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 7px; }
-.int-btn { border: var(--k-border); background: var(--k-bg); color: var(--k-mid); padding: 7px 4px; font-family: var(--k-sans); font-size: 12px; font-weight: 500; border-radius: var(--k-radius-sm); cursor: pointer; text-align: center; transition: all 0.12s; }
+.int-btn { border: var(--k-border); background: var(--k-bg); color: var(--k-mid); padding: 11px 4px; font-family: var(--k-sans); font-size: 12px; font-weight: 500; border-radius: var(--k-radius-sm); cursor: pointer; text-align: center; transition: all 0.12s; min-height: 44px; }
 .int-btn:hover { border-color: var(--k-orange); color: var(--k-orange); }
 .int-btn.active { background: var(--k-orange-tt); border-color: rgba(217,107,31,0.35); color: var(--k-orange); }
 
 /* ── Effective temp ── */
 .eff-card { background: var(--k-bg); border: var(--k-border); border-radius: var(--k-radius); padding: 12px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-.eff-label { font-family: var(--k-mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 6px; }
+.eff-label { font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 6px; }
 .eff-breakdown { font-family: var(--k-mono); font-size: 10px; color: var(--k-mid); line-height: 1.9; }
 .eff-number { font-family: var(--k-mono); font-size: 40px; font-weight: 300; line-height: 1; text-align: right; flex-shrink: 0; letter-spacing: -0.03em; }
 
@@ -179,7 +180,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 .kit-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: var(--k-border); }
 .kit-row:last-child { border-bottom: none; }
 .kit-ph { font-size: 15px; color: var(--k-mid); flex-shrink: 0; margin-top: 1px; width: 18px; text-align: center; }
-.kit-cat { font-family: var(--k-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 2px; }
+.kit-cat { font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 2px; }
 .kit-name { font-size: 13px; font-weight: 500; color: var(--k-ink); line-height: 1.3; }
 .kit-note { font-size: 11px; color: var(--k-mid); margin-top: 2px; line-height: 1.4; }
 
@@ -218,8 +219,8 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
   .body-row { flex-direction: column; overflow: visible; height: auto; min-height: 0; }
 
   /* Map: fixed pixel height — Leaflet needs a concrete number */
-  .map-wrap { height: 150px; min-height: 150px; flex: none; order: -1; overflow: hidden; position: relative; }
-  #map { position: absolute; top: 0; left: 0; width: 100%; height: 150px; }
+  .map-wrap { height: 210px; min-height: 210px; flex: none; order: -1; overflow: hidden; position: relative; }
+  #map { position: absolute; top: 0; left: 0; width: 100%; height: 210px; }
 
   /* Panels: full width, natural height */
   .panel { width: 100% !important; overflow-y: visible; height: auto; border-left: none !important; border-right: none !important; border-bottom: var(--k-border); }
@@ -274,7 +275,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 .modal-body { padding: 18px 20px 20px; }
 .form-row { margin-bottom: 14px; }
 .form-row label {
-  display: block; font-family: var(--k-mono); font-size: 9px;
+  display: block; font-family: var(--k-mono); font-size: 10px;
   letter-spacing: 0.12em; text-transform: uppercase; color: var(--k-mid);
   margin-bottom: 6px;
 }
@@ -393,6 +394,25 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 @media (max-width: 480px) {
   .form-row-2col { grid-template-columns: 1fr; }
 }
+
+/* ── Focus visible ── */
+:focus-visible {
+  outline: 2px solid var(--k-orange);
+  outline-offset: 2px;
+}
+
+/* ── Geolocation button ── */
+.geo-btn {
+  position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%);
+  z-index: 500; background: var(--k-orange); border: none; border-radius: 100px;
+  padding: 8px 18px; font-size: 13px; font-weight: 500; color: var(--k-white);
+  font-family: var(--k-sans); cursor: pointer; white-space: nowrap;
+  display: flex; align-items: center; gap: 7px;
+  box-shadow: 0 2px 12px rgba(217,107,31,0.35);
+  transition: opacity 0.12s;
+}
+.geo-btn:hover { opacity: 0.88; }
+.geo-btn.hidden { display: none; }
 </style>
 </head>
 <body>
@@ -442,18 +462,18 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
             <span class="sl-name" id="lblForecast"></span>
             <span id="fcLabel" class="fc-now"></span>
           </div>
-          <input type="range" id="fcSlider" min="0" max="23" step="1" value="0">
+          <input type="range" id="fcSlider" min="0" max="23" step="1" value="0" aria-label="Prognos">
         </div>
       </div>
       <div class="p-sec">
         <div class="sec-label" id="lblConfig"></div>
         <div class="sl-block">
           <div class="sl-hd"><span class="sl-name" id="lblDur"></span><span class="sl-val" id="durLabel">2.0 h</span></div>
-          <input type="range" id="durSlider" min="0.5" max="8" step="0.5" value="2">
+          <input type="range" id="durSlider" min="0.5" max="8" step="0.5" value="2" aria-label="Turlängd">
         </div>
         <div class="sl-block">
           <div class="sl-hd"><span class="sl-name" id="lblSpeed"></span><span class="sl-val" id="speedLabel">28 km/h</span></div>
-          <input type="range" id="speedSlider" min="14" max="44" step="2" value="28">
+          <input type="range" id="speedSlider" min="14" max="44" step="2" value="28" aria-label="Snitthastighet">
         </div>
         <div class="sl-block">
           <div class="sl-hd"><span class="sl-name" id="lblIntensity"></span></div>
@@ -480,6 +500,10 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
     <!-- MAP -->
     <div class="map-wrap">
       <div id="map"></div>
+      <button class="geo-btn" id="geoBtn" onclick="useGeolocation()">
+        <i class="ph ph-crosshair" style="font-size:15px;"></i>
+        <span id="geoBtnText"></span>
+      </button>
       <div class="map-hint" id="mapHint">
         <i class="ph ph-map-pin" style="color:var(--k-orange);font-size:13px;"></i>
         <span id="mapHintText"></span>
@@ -670,6 +694,7 @@ const T = {
       longRide:  'Du kyls ned mot slutet. Ha ett extra lager i bakfickan.',
       startCold: 'Klä för hur det känns 15 min in på turen, inte vid starten.',
     },
+    geoBtn: 'Hitta min plats',
     shareBtn: 'Dela tur',
     shareModal: 'Skapa turlink',
     rideName: 'Turnamn',
@@ -761,6 +786,7 @@ const T = {
       longRide:  'You will cool down toward the end. Keep a spare layer in your pocket.',
       startCold: 'Dress for how it feels 15 min in, not at the very start.',
     },
+    geoBtn: 'Use my location',
     shareBtn: 'Share ride',
     shareModal: 'Create ride link',
     rideName: 'Ride name',
@@ -832,6 +858,17 @@ let marker=null;
 
 map.on('click', e => selectLocation(e.latlng.lat, e.latlng.lng));
 
+function useGeolocation() {
+  if (!navigator.geolocation) return;
+  const btn = document.getElementById('geoBtn');
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  navigator.geolocation.getCurrentPosition(
+    pos => { selectLocation(pos.coords.latitude, pos.coords.longitude); },
+    ()  => { btn.disabled = false; btn.style.opacity = ''; }
+  );
+}
+
 function placeMarker(lat,lng) {
   if(marker) map.removeLayer(marker);
   marker = L.marker([lat,lng],{icon:pulseIcon}).addTo(map);
@@ -843,6 +880,7 @@ async function selectLocation(lat, lng) {
   document.getElementById('fcSlider').value=0;
   placeMarker(lat,lng);
   document.getElementById('mapHint').style.display='none';
+  document.getElementById('geoBtn').classList.add('hidden');
   if (!S.isShared) {
     document.getElementById('locCoords').textContent=`${lat.toFixed(4)}° N  ${lng.toFixed(4)}° E`;
   }
@@ -1160,6 +1198,7 @@ function applySharedMode() {
   document.getElementById('app').classList.add('is-shared');
   map.off('click');
   document.getElementById('shareBtnSec').style.display = 'none';
+  document.getElementById('geoBtn').classList.add('hidden');
   const ownLink = document.getElementById('ownRideLink');
   ownLink.href = CONFIG.baseUrl || (window.location.origin + window.location.pathname);
   ownLink.style.display = 'flex';
@@ -1542,6 +1581,7 @@ function updateLabels() {
   document.getElementById('intMod').textContent      =t('mod');
   document.getElementById('intHard').textContent     =t('hard');
   document.getElementById('mapHintText').textContent  =t('mapHint');
+  document.getElementById('geoBtnText').textContent   =t('geoBtn');
   document.getElementById('speedLabel').textContent   =speedKmh()+' km/h';
   document.getElementById('shareBtn').innerHTML        =`<i class="ph ph-share-network" style="font-size:14px;"></i>${t('shareBtn')}`;
   document.getElementById('shareImgBtn').innerHTML     =`<i class="ph ph-image" style="font-size:14px;"></i>${t('shareImageBtn')}`;
