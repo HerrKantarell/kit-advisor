@@ -54,8 +54,9 @@ header {
   z-index: 1001;
 }
 
-.brand { font-family: var(--k-serif); font-style: italic; font-size: 18px; color: var(--k-ink); flex-shrink: 0; letter-spacing: -0.01em; white-space: nowrap; }
-.brand .slash { color: var(--k-orange); font-style: normal; }
+.brand { font-family: var(--k-serif); font-style: italic; font-size: 22px; color: var(--k-ink); flex-shrink: 0; letter-spacing: -0.02em; white-space: nowrap; }
+.brand .kit { color: var(--k-orange); }
+.brand .slash { color: var(--k-mid); font-style: normal; }
 .h-rule { width: 1px; height: 16px; background: var(--k-faint); flex-shrink: 0; }
 
 .loc-bar { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
@@ -210,7 +211,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 @media (max-width: 640px) {
   /* City banner above map on mobile */
   .mob-loc { display: flex; }
-  .loc-name, .loc-coords, .h-rule { display: none; }
+  .loc-name, .loc-coords, .h-rule, .map-toggle-btn { display: none; }
   .tog-grp button { padding: 4px 6px; font-size: 9px; }
 
   /* Scroll layout */
@@ -395,6 +396,98 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
   .form-row-2col { grid-template-columns: 1fr; }
 }
 
+/* ── Map collapse ── */
+.map-toggle-btn {
+  background: var(--k-bg); border: var(--k-border); border-radius: var(--k-radius-sm);
+  padding: 5px 9px; font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.04em;
+  color: var(--k-mid); cursor: pointer; display: flex; align-items: center; gap: 5px;
+  transition: all 0.12s; white-space: nowrap; flex-shrink: 0;
+}
+.map-toggle-btn:hover { color: var(--k-ink); }
+
+.body-row.map-hidden .map-wrap  { display: none; }
+.body-row.map-hidden .panel-left,
+.body-row.map-hidden .panel-right { flex: 1; max-width: 480px; }
+
+/* ── Address search ── */
+.search-wrap {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 600; width: min(360px, calc(100% - 120px));
+}
+.search-input {
+  width: 100%; background: var(--k-white); border: var(--k-border);
+  border-radius: var(--k-radius); padding: 8px 12px 8px 34px;
+  font-family: var(--k-sans); font-size: 13px; color: var(--k-ink);
+  box-shadow: 0 2px 10px rgba(17,17,17,0.08); outline: none;
+  transition: border-color 0.12s;
+}
+.search-input:focus { border-color: var(--k-orange); }
+.search-icon {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  font-size: 14px; color: var(--k-mid); pointer-events: none;
+}
+.search-results {
+  background: var(--k-white); border: var(--k-border); border-radius: var(--k-radius);
+  margin-top: 4px; box-shadow: 0 4px 16px rgba(17,17,17,0.1);
+  overflow: hidden; display: none;
+}
+.search-results.open { display: block; }
+.search-result-item {
+  padding: 9px 13px; font-size: 13px; cursor: pointer; border-bottom: var(--k-border);
+  transition: background 0.08s; line-height: 1.35;
+}
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item:hover { background: var(--k-bg); }
+.search-result-item .sr-main { font-weight: 500; color: var(--k-ink); }
+.search-result-item .sr-sub  { font-size: 11px; color: var(--k-mid); margin-top: 1px; }
+
+/* ── Onboarding overlay ── */
+.onboard-overlay {
+  position: fixed; inset: 0; z-index: 3000;
+  background: rgba(17,17,17,0.5); backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.onboard-card {
+  background: var(--k-white); border: var(--k-border);
+  border-radius: var(--k-radius); width: 100%; max-width: 380px;
+  box-shadow: 0 12px 40px rgba(17,17,17,0.15);
+}
+.onboard-hd {
+  padding: 22px 24px 14px;
+  border-bottom: var(--k-border);
+}
+.onboard-brand { font-family: var(--k-serif); font-style: italic; font-size: 22px; letter-spacing: -0.02em; }
+.onboard-brand .kit { color: var(--k-orange); }
+.onboard-brand .slash { color: var(--k-mid); font-style: normal; }
+.onboard-tagline { font-size: 13px; color: var(--k-mid); margin-top: 4px; }
+.onboard-steps { padding: 18px 24px; }
+.onboard-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.onboard-step:last-child { margin-bottom: 0; }
+.onboard-num {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--k-orange-tt);
+  border: 0.5px solid rgba(217,107,31,0.25); color: var(--k-orange);
+  font-family: var(--k-mono); font-size: 11px; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; margin-top: 1px;
+}
+.onboard-step-text { font-size: 13px; line-height: 1.45; color: var(--k-ink); }
+.onboard-actions { padding: 0 24px 22px; display: flex; gap: 8px; }
+.onboard-geo {
+  flex: 1; background: var(--k-orange); color: var(--k-white);
+  border: none; border-radius: var(--k-radius-sm); padding: 10px 14px;
+  font-family: var(--k-sans); font-size: 13px; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+  transition: opacity 0.12s;
+}
+.onboard-geo:hover { opacity: 0.88; }
+.onboard-skip {
+  background: transparent; color: var(--k-mid); border: var(--k-border);
+  border-radius: var(--k-radius-sm); padding: 10px 16px;
+  font-family: var(--k-sans); font-size: 13px; cursor: pointer; transition: all 0.12s;
+  white-space: nowrap;
+}
+.onboard-skip:hover { background: var(--k-bg); color: var(--k-ink); }
+
 /* ── Focus visible ── */
 :focus-visible {
   outline: 2px solid var(--k-orange);
@@ -419,7 +512,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 <div id="app">
 
   <header>
-    <div class="brand">Kit<span class="slash">/</span>Advisor</div>
+    <div class="brand"><span class="kit">Kit</span><span class="slash">/</span>Advisor</div>
     <div class="h-rule"></div>
     <div class="loc-bar">
       <i class="ph ph-map-pin" style="font-size:13px;color:var(--k-mid);flex-shrink:0;"></i>
@@ -440,6 +533,10 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
         <button class="tog" data-v="ms">m/s</button>
       </div>
     </div>
+    <button class="map-toggle-btn" id="mapToggleBtn" onclick="toggleMap()">
+      <i class="ph ph-arrow-line-left" id="mapToggleIcon"></i>
+      <span id="mapToggleLabel"></span>
+    </button>
     <a id="ownRideLink" class="own-ride-link" style="display:none"></a>
     <div class="status-pill" id="statusChip">—</div>
   </header>
@@ -450,7 +547,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
     <span id="mobLocName"></span>
   </div>
 
-  <div class="body-row">
+  <div class="body-row" id="bodyRow">
 
     <!-- LEFT -->
     <div class="panel panel-left">
@@ -500,10 +597,20 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
     <!-- MAP -->
     <div class="map-wrap">
       <div id="map"></div>
+
+      <!-- Adresssökning -->
+      <div class="search-wrap" id="searchWrap">
+        <i class="ph ph-magnifying-glass search-icon"></i>
+        <input class="search-input" id="searchInput" type="text" autocomplete="off" spellcheck="false">
+        <div class="search-results" id="searchResults"></div>
+      </div>
+
+      <!-- Hitta min plats -->
       <button class="geo-btn" id="geoBtn" onclick="useGeolocation()">
         <i class="ph ph-crosshair" style="font-size:15px;"></i>
         <span id="geoBtnText"></span>
       </button>
+
       <div class="map-hint" id="mapHint">
         <i class="ph ph-map-pin" style="color:var(--k-orange);font-size:13px;"></i>
         <span id="mapHintText"></span>
@@ -596,6 +703,28 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
         <button id="copyImgBtn" class="btn-generate" onclick="copyKitImage()"></button>
         <button id="downloadImgBtn" class="btn-generate-ghost" onclick="downloadKitImage()"></button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Onboarding overlay ── -->
+<div id="onboardOverlay" class="onboard-overlay" style="display:none">
+  <div class="onboard-card">
+    <div class="onboard-hd">
+      <div class="onboard-brand"><span class="kit">Kit</span><span class="slash">/</span>Advisor</div>
+      <div class="onboard-tagline" id="onboardTagline"></div>
+    </div>
+    <div class="onboard-steps">
+      <div class="onboard-step"><div class="onboard-num">1</div><div class="onboard-step-text" id="onboardStep1"></div></div>
+      <div class="onboard-step"><div class="onboard-num">2</div><div class="onboard-step-text" id="onboardStep2"></div></div>
+      <div class="onboard-step"><div class="onboard-num">3</div><div class="onboard-step-text" id="onboardStep3"></div></div>
+    </div>
+    <div class="onboard-actions">
+      <button class="onboard-geo" id="onboardGeoBtn" onclick="onboardGeo()">
+        <i class="ph ph-crosshair" style="font-size:15px;"></i>
+        <span id="onboardGeoBtnText"></span>
+      </button>
+      <button class="onboard-skip" onclick="closeOnboarding()"><span id="onboardSkipText"></span></button>
     </div>
   </div>
 </div>
@@ -695,6 +824,15 @@ const T = {
       startCold: 'Klä för hur det känns 15 min in på turen, inte vid starten.',
     },
     geoBtn: 'Hitta min plats',
+    searchPlaceholder: 'Sök stad eller adress…',
+    mapHide: 'Göm karta',
+    mapShow: 'Visa karta',
+    onboardTagline: 'Rätt kläder för din tur — baserat på väder.',
+    onboardStep1: 'Välj din startplats på kartan eller sök på en adress',
+    onboardStep2: 'Ställ in turlängd, hastighet och intensitet',
+    onboardStep3: 'Få en komplett kit-rekommendation direkt',
+    onboardGeo: 'Hitta min plats',
+    onboardSkip: 'Välj på kartan',
     shareBtn: 'Dela tur',
     shareModal: 'Skapa turlink',
     rideName: 'Turnamn',
@@ -787,6 +925,15 @@ const T = {
       startCold: 'Dress for how it feels 15 min in, not at the very start.',
     },
     geoBtn: 'Use my location',
+    searchPlaceholder: 'Search city or address…',
+    mapHide: 'Hide map',
+    mapShow: 'Show map',
+    onboardTagline: 'The right kit for your ride — based on real weather.',
+    onboardStep1: 'Pick your start location on the map or search for an address',
+    onboardStep2: 'Set your ride duration, speed and intensity',
+    onboardStep3: 'Get a full kit recommendation instantly',
+    onboardGeo: 'Use my location',
+    onboardSkip: 'Pick on map',
     shareBtn: 'Share ride',
     shareModal: 'Create ride link',
     rideName: 'Ride name',
@@ -867,6 +1014,86 @@ function useGeolocation() {
     pos => { selectLocation(pos.coords.latitude, pos.coords.longitude); },
     ()  => { btn.disabled = false; btn.style.opacity = ''; }
   );
+}
+
+// ─── MAP TOGGLE ───────────────────────────────────────────
+function toggleMap() {
+  const row  = document.getElementById('bodyRow');
+  const icon = document.getElementById('mapToggleIcon');
+  const hidden = row.classList.toggle('map-hidden');
+  icon.className = hidden ? 'ph ph-arrow-line-right' : 'ph ph-arrow-line-left';
+  document.getElementById('mapToggleLabel').textContent = hidden ? t('mapShow') : t('mapHide');
+  if (!hidden) setTimeout(() => map.invalidateSize(), 50);
+}
+
+// ─── ADDRESS SEARCH ───────────────────────────────────────
+let _searchTimer = null;
+document.getElementById('searchInput').addEventListener('input', function() {
+  clearTimeout(_searchTimer);
+  const q = this.value.trim();
+  if (q.length < 2) { closeSearchResults(); return; }
+  _searchTimer = setTimeout(() => runSearch(q), 300);
+});
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { this.value=''; closeSearchResults(); }
+});
+document.addEventListener('click', e => {
+  if (!document.getElementById('searchWrap').contains(e.target)) closeSearchResults();
+});
+
+async function runSearch(q) {
+  const lang = S.lang === 'sv' ? 'sv,da,nb' : 'en';
+  try {
+    const r = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&addressdetails=1`,
+      { headers: { 'Accept-Language': lang } }
+    );
+    const results = await r.json();
+    renderSearchResults(results);
+  } catch { closeSearchResults(); }
+}
+
+function renderSearchResults(results) {
+  const box = document.getElementById('searchResults');
+  if (!results.length) { box.classList.remove('open'); return; }
+  box.innerHTML = results.map((r, i) => {
+    const a = r.address || {};
+    const main = a.city || a.town || a.village || a.municipality || a.county || r.name || '';
+    const parts = [a.state, a.country].filter(Boolean).join(', ');
+    return `<div class="search-result-item" onclick="selectSearchResult(${r.lat},${r.lon},'${(main+', '+parts).replace(/'/g,"\\'")}')">
+      <div class="sr-main">${main}</div>
+      ${parts ? `<div class="sr-sub">${parts}</div>` : ''}
+    </div>`;
+  }).join('');
+  box.classList.add('open');
+}
+
+function selectSearchResult(lat, lng, name) {
+  document.getElementById('searchInput').value = '';
+  closeSearchResults();
+  map.setView([lat, lng], 11);
+  selectLocation(parseFloat(lat), parseFloat(lng));
+}
+
+function closeSearchResults() {
+  document.getElementById('searchResults').classList.remove('open');
+}
+
+// ─── ONBOARDING ───────────────────────────────────────────
+function showOnboardingIfFirst() {
+  if (S.isShared) return;
+  if (localStorage.getItem('ka_onboarded')) return;
+  document.getElementById('onboardOverlay').style.display = 'flex';
+}
+
+function closeOnboarding() {
+  document.getElementById('onboardOverlay').style.display = 'none';
+  localStorage.setItem('ka_onboarded', '1');
+}
+
+function onboardGeo() {
+  closeOnboarding();
+  useGeolocation();
 }
 
 function placeMarker(lat,lng) {
@@ -1588,7 +1815,16 @@ function updateLabels() {
   document.getElementById('intMod').textContent      =t('mod');
   document.getElementById('intHard').textContent     =t('hard');
   document.getElementById('mapHintText').textContent  =t('mapHint');
-  document.getElementById('geoBtnText').textContent   =t('geoBtn');
+  document.getElementById('geoBtnText').textContent    =t('geoBtn');
+  document.getElementById('searchInput').placeholder   =t('searchPlaceholder');
+  document.getElementById('onboardTagline').textContent =t('onboardTagline');
+  document.getElementById('onboardStep1').textContent   =t('onboardStep1');
+  document.getElementById('onboardStep2').textContent   =t('onboardStep2');
+  document.getElementById('onboardStep3').textContent   =t('onboardStep3');
+  document.getElementById('onboardGeoBtnText').textContent=t('onboardGeo');
+  document.getElementById('onboardSkipText').textContent  =t('onboardSkip');
+  const mapHidden = document.getElementById('bodyRow').classList.contains('map-hidden');
+  document.getElementById('mapToggleLabel').textContent = mapHidden ? t('mapShow') : t('mapHide');
   document.getElementById('speedLabel').textContent   =speedKmh()+' km/h';
   document.getElementById('shareBtn').innerHTML        =`<i class="ph ph-share-network" style="font-size:14px;"></i>${t('shareBtn')}`;
   document.getElementById('shareImgBtn').innerHTML     =`<i class="ph ph-image" style="font-size:14px;"></i>${t('shareImageBtn')}`;
@@ -1700,8 +1936,10 @@ updateLabels();
 setStatus('waiting');
 if (hasSharedUrl) {
   selectLocation(S.lat, S.lng);
-} else {
+} else if (localStorage.getItem('ka_onboarded')) {
   selectLocation(55.6761, 12.5683);
+} else {
+  showOnboardingIfFirst();
 }
 </script>
 </body>
