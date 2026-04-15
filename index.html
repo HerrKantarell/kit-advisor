@@ -930,7 +930,14 @@ async function fetchWeather(lat, lng, days=2) {
   if(!r.ok) throw new Error('API');
   const d=await r.json();
   const c=d.current;
-  const nowIdx=d.hourly.time.findIndex(t=>t===c.time);
+  const nowHour=c.time.slice(0,13); // "YYYY-MM-DDTHH" — trimmar kvart-suffix
+  let nowIdx=d.hourly.time.findIndex(t=>t.startsWith(nowHour));
+  if(nowIdx<0){
+    // Fallback: hitta närmaste timme i ms
+    const nowMs=new Date(c.time).getTime();
+    nowIdx=d.hourly.time.reduce((best,t,i)=>
+      Math.abs(new Date(t)-nowMs)<Math.abs(new Date(d.hourly.time[best])-nowMs)?i:best, 0);
+  }
   S.hourly={
     times:d.hourly.time, temp:d.hourly.temperature_2m,
     wind:d.hourly.wind_speed_10m, gusts:d.hourly.wind_gusts_10m,
