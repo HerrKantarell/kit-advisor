@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kit Advisor — Cykelkläder efter väder</title>
+<title>Field/Trip — Cykelkläder efter väder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -522,7 +522,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 <div id="app">
 
   <header>
-    <div class="brand"><span class="kit">Kit</span><span class="slash">/</span>Advisor</div>
+    <div class="brand"><span class="kit">Field</span><span class="slash">/</span>Trip</div>
     <div class="h-rule"></div>
     <div class="loc-bar">
       <i class="ph ph-map-pin" style="font-size:13px;color:var(--k-mid);flex-shrink:0;"></i>
@@ -722,7 +722,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 <div id="onboardOverlay" class="onboard-overlay" style="display:none">
   <div class="onboard-card">
     <div class="onboard-hd">
-      <div class="onboard-brand"><span class="kit">Kit</span><span class="slash">/</span>Advisor</div>
+      <div class="onboard-brand"><span class="kit">Field</span><span class="slash">/</span>Trip</div>
       <div class="onboard-tagline" id="onboardTagline"></div>
     </div>
     <div class="onboard-steps">
@@ -778,7 +778,7 @@ const S = {
 // ─── i18n ─────────────────────────────────────────────────
 const T = {
   sv: {
-    title:'Kit/Advisor — Cykelkläder efter väder',
+    title:'Field/Trip — Cykelkläder efter väder',
     waiting:'Klicka på kartan för att välja plats',
     mapHint:'Klicka var som helst på kartan',
     status:{ waiting:'Väntar', loading:'Hämtar…', ready:'Klar', error:'Fel' },
@@ -879,7 +879,7 @@ const T = {
     },
   },
   en: {
-    title:'Kit Advisor — Cycling Clothing by Weather',
+    title:'Field/Trip — Cycling Clothing by Weather',
     waiting:'Tap the map to choose your location',
     mapHint:'Click anywhere on the map',
     status:{ waiting:'Waiting', loading:'Loading…', ready:'Ready', error:'Error' },
@@ -1635,7 +1635,7 @@ async function generateKitImage() {
 
   // ── Brand — right-aligned, mid-height of manicula
   ctx.font = `400 32px ${blkl}`; ctx.fillStyle = '#347962'; ctx.textAlign = 'right';
-  ctx.fillText('Kit/Advisor', W - m, y + 54);
+  ctx.fillText('Field/Trip', W - m, y + 54);
   ctx.textAlign = 'left';
   y += 80 + 52; // bottom of manicula + gap → 212
 
