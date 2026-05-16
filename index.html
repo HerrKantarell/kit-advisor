@@ -217,7 +217,11 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 @media (max-width: 640px) {
   /* City banner above map on mobile */
   .mob-loc { display: flex; }
-  .loc-name, .loc-coords, .h-rule, .map-toggle-btn { display: none; }
+  .loc-name, .loc-coords, .h-rule, .map-toggle-btn, .h-toggles { display: none; }
+  #panelTogglesSlot .h-toggles {
+    display: flex; gap: 6px; padding: 12px 18px;
+    border-bottom: var(--k-border); background: var(--k-white);
+  }
   .tog-grp button { padding: 4px 6px; font-size: 9px; }
 
   /* Scroll layout */
@@ -525,7 +529,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
       <span class="loc-name" id="locName"></span>
       <span class="loc-coords" id="locCoords"></span>
     </div>
-    <div class="h-toggles">
+    <div class="h-toggles" id="hToggles">
       <div class="tog-grp" id="langTog">
         <button class="tog active" data-v="sv">SV</button>
         <button class="tog" data-v="en">EN</button>
@@ -557,6 +561,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 
     <!-- LEFT -->
     <div class="panel panel-left">
+      <div id="panelTogglesSlot"></div>
       <div class="p-sec">
         <div class="sec-label" id="lblWeather"></div>
         <div id="wxArea"><div class="empty" id="wxEmpty"></div></div>
@@ -1939,6 +1944,23 @@ document.querySelectorAll('.int-btn').forEach(btn=>{
     if(S.wx) renderAnalysis();
   });
 });
+
+// ─── RESPONSIVE TOGGLE PLACEMENT ─────────────────────────
+(function() {
+  const mq      = window.matchMedia('(max-width: 640px)');
+  const toggEl  = document.getElementById('hToggles');
+  const slot    = document.getElementById('panelTogglesSlot');
+  const anchor  = document.getElementById('mapToggleBtn'); // insert before this in header
+  function place(mobile) {
+    if (mobile) {
+      slot.appendChild(toggEl);
+    } else {
+      anchor.parentNode.insertBefore(toggEl, anchor);
+    }
+  }
+  place(mq.matches);
+  mq.addEventListener('change', e => place(e.matches));
+})();
 
 // ─── INIT ─────────────────────────────────────────────────
 const hasSharedUrl = initFromUrl();
