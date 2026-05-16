@@ -23,8 +23,8 @@
   --k-white:       #FFFFFF;
   --k-mid:         #5a5a57;
   --k-faint:       #E2E2DF;
-  --k-orange:      #D96B1F;
-  --k-orange-tt:   rgba(217,107,31,0.06);
+  --k-orange:      #347962;
+  --k-orange-tt:   rgba(52,121,98,0.06);
   --k-sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   --k-serif: 'Playfair Display', Georgia, serif;
   --k-mono: ui-monospace, 'SF Mono', 'Courier New', monospace;
@@ -151,7 +151,7 @@ header {
 .wx-cell .wl { font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 3px; }
 .wx-cell .wv { font-family: var(--k-mono); font-size: 19px; color: var(--k-ink); line-height: 1; }
 .wx-cell .wu { font-size: 11px; color: var(--k-mid); }
-.wx-cell.wx-hi { border-color: rgba(217,107,31,0.3); background: var(--k-orange-tt); }
+.wx-cell.wx-hi { border-color: rgba(52,121,98,0.3); background: var(--k-orange-tt); }
 .wx-cell.wx-hi .wv { color: var(--k-orange); }
 .wx-desc { margin-top: 9px; font-size: 12px; color: var(--k-mid); }
 
@@ -169,7 +169,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 .int-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 7px; }
 .int-btn { border: var(--k-border); background: var(--k-bg); color: var(--k-mid); padding: 11px 4px; font-family: var(--k-sans); font-size: 12px; font-weight: 500; border-radius: var(--k-radius-sm); cursor: pointer; text-align: center; transition: all 0.12s; min-height: 44px; }
 .int-btn:hover { border-color: var(--k-orange); color: var(--k-orange); }
-.int-btn.active { background: var(--k-orange-tt); border-color: rgba(217,107,31,0.35); color: var(--k-orange); }
+.int-btn.active { background: var(--k-orange-tt); border-color: rgba(52,121,98,0.35); color: var(--k-orange); }
 
 /* ── Effective temp ── */
 .eff-card { background: var(--k-bg); border: var(--k-border); border-radius: var(--k-radius); padding: 12px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
@@ -204,7 +204,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 /* ── Pulse marker ── */
 @keyframes pulse-ring { 0% { transform:scale(0.5); opacity:0.7; } 100% { transform:scale(2.4); opacity:0; } }
 .pulse-marker { position:relative; width:14px; height:14px; }
-.pulse-marker .core { position:absolute; inset:0; border-radius:50%; background:var(--k-orange); border:2px solid var(--k-white); box-shadow:0 1px 4px rgba(217,107,31,0.4); }
+.pulse-marker .core { position:absolute; inset:0; border-radius:50%; background:var(--k-orange); border:2px solid var(--k-white); box-shadow:0 1px 4px rgba(52,121,98,0.4); }
 .pulse-marker .ring { position:absolute; inset:0; border-radius:50%; background:var(--k-orange); animation:pulse-ring 2s ease-out infinite; }
 
 /* ── Responsive ── */
@@ -472,7 +472,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 .onboard-step:last-child { margin-bottom: 0; }
 .onboard-num {
   width: 22px; height: 22px; border-radius: 50%; background: var(--k-orange-tt);
-  border: 0.5px solid rgba(217,107,31,0.25); color: var(--k-orange);
+  border: 0.5px solid rgba(52,121,98,0.25); color: var(--k-orange);
   font-family: var(--k-mono); font-size: 11px; display: flex; align-items: center;
   justify-content: center; flex-shrink: 0; margin-top: 1px;
 }
@@ -507,7 +507,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
   padding: 8px 18px; font-size: 13px; font-weight: 500; color: var(--k-white);
   font-family: var(--k-sans); cursor: pointer; white-space: nowrap;
   display: flex; align-items: center; gap: 7px;
-  box-shadow: 0 2px 12px rgba(217,107,31,0.35);
+  box-shadow: 0 2px 12px rgba(52,121,98,0.35);
   transition: opacity 0.12s;
 }
 .geo-btn:hover { opacity: 0.88; }
@@ -1301,7 +1301,7 @@ function makeManicula(color) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="28" height="28" style="flex-shrink:0;margin-top:1px;color:${color}"><style>.m0{fill:currentColor}</style><path class="m0" d="${MANICULA_PATH}"/></svg>`;
 }
 
-const MANICULA   = makeManicula('#D96B1F');
+const MANICULA   = makeManicula('#347962');
 const MANICULA_D = makeManicula('#c05050');
 
 // ─── RENDER KIT ───────────────────────────────────────────
@@ -1629,7 +1629,7 @@ async function generateKitImage() {
   ctx.restore();
 
   // ── Brand — right-aligned, mid-height of manicula
-  ctx.font = `400 32px ${blkl}`; ctx.fillStyle = '#D96B1F'; ctx.textAlign = 'right';
+  ctx.font = `400 32px ${blkl}`; ctx.fillStyle = '#347962'; ctx.textAlign = 'right';
   ctx.fillText('Kit/Advisor', W - m, y + 54);
   ctx.textAlign = 'left';
   y += 80 + 52; // bottom of manicula + gap → 212
