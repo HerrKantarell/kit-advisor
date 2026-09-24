@@ -16,6 +16,7 @@ rekommendationer baserade på effektiv temperatur (vindkyla + ansträngning).
 - Phosphor Icons 2.1.1 (CDN)
 - Playfair Display (Google Fonts)
 - Manufacturing Consent (blackletter, CDN jsdelivr — används i logotypen)
+- Cloudflare Web Analytics (cookiefri besöksstatistik, beacon-script före </body>, dashboard på dash.cloudflare.com — inga custom events)
 
 ## Hosting
 GitHub Pages — HerrKantarell/kit-advisor
