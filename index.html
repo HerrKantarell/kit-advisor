@@ -802,6 +802,7 @@ const T = {
     easy:'Lugn', mod:'Tempo', hard:'Hård',
     analysis:'Analys', kit:'Utrustning',
     effTemp:'Upplevd temp', windChill:'Vindkyla', effort:'Ansträngning',
+    speedEffect:'Fart',
     durPen:'Turlängd', humPen:'Hög fukt',
     selectLoc:'Välj plats för beräkning.', selectLocWx:'Välj plats på kartan.',
     wDesc:{0:'Klart',1:'Klart',2:'Delvis molnigt',3:'Mulet',45:'Dimma',48:'Rimfrost',
@@ -903,6 +904,7 @@ const T = {
     easy:'Easy', mod:'Tempo', hard:'Hard',
     analysis:'Analysis', kit:'Kit',
     effTemp:'Feels like', windChill:'Wind chill', effort:'Effort',
+    speedEffect:'Speed',
     durPen:'Ride length', humPen:'High humidity',
     selectLoc:'Choose a location to calculate.', selectLocWx:'Click the map to choose a location.',
     wDesc:{0:'Clear',1:'Clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Freezing fog',
@@ -1262,22 +1264,31 @@ function renderWeather(w) {
 
 // ─── FORMULA ─────────────────────────────────────────────
 function windChill(T, V) {
-  if(T>=10||V<4.8) return T;
-  return 13.12+0.6215*T-11.37*Math.pow(V,0.16)+0.3965*T*Math.pow(V,0.16);
+  if (V < 4.8) return T;
+  // Standardformeln (giltig för T < 10°C, V > 4.8 km/h)
+  const wc = 13.12 + 0.6215*T - 11.37*Math.pow(V,0.16) + 0.3965*T*Math.pow(V,0.16);
+  if (T <= 10) return wc;             // validerat område — full effekt
+  if (T >= 33) return T;              // hudtemperatur nådd — ingen konvektiv kylning
+  // Blend: full vindkylaeffekt vid 10°C → ingen vid 33°C
+  // Eliminerar hoppet vid 10°C och ger hastigheten synlig effekt även vid varmare väder
+  const blend = (33 - T) / 23;
+  return T + (wc - T) * blend;
 }
 function calcEff(w) {
   const speed=speedKmh(), dur=parseFloat(document.getElementById('durSlider').value);
-  const wc=windChill(w.temp, w.wind+speed);
+  const wc      = windChill(w.temp, w.wind + speed);
+  const wcNoSpd = windChill(w.temp, w.wind);           // bara omgivningsvind
+  const speedEffect = Math.round((wc - wcNoSpd) * 10) / 10;
   const effort={easy:4,mod:7,hard:11}[S.intensity];
   const durP=dur>3?-2:dur>1.5?-1:0;
   const humP=w.humidity>85?-2:0;
-  return { eff:Math.round((wc+effort+durP+humP)*10)/10, wc:Math.round(wc*10)/10, effort,durP,humP };
+  return { eff:Math.round((wc+effort+durP+humP)*10)/10, wc:Math.round(wc*10)/10, speedEffect, effort,durP,humP };
 }
 
 // ─── RENDER ANALYSIS ─────────────────────────────────────
 function renderAnalysis() {
   if(!S.wx) return;
-  const {eff,wc,effort,durP,humP}=calcEff(S.wx);
+  const {eff,wc,speedEffect,effort,durP,humP}=calcEff(S.wx);
   let color='#3d7a52';
   if(eff<13) color='#2e6ea6';
   if(eff<6)  color='#5a48b4';
@@ -1285,6 +1296,7 @@ function renderAnalysis() {
   if(eff>24) color='#b83c3c';
 
   let bd=`${t('windChill')}: ${fmtTemp(wc)}<br>${t('effort')}: +${effort}°`;
+  if(Math.abs(speedEffect)>=0.5) bd+=`<br>${t('speedEffect')}: ${speedEffect>0?'+':''}${speedEffect}°`;
   if(durP<0) bd+=`<br>${t('durPen')}: ${durP}°`;
   if(humP<0) bd+=`<br>${t('humPen')}: ${humP}°`;
 
