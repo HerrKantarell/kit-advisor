@@ -45,7 +45,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-#app { display: flex; flex-direction: column; height: 100vh; min-height: 0; overflow: hidden; }
+#app { display: flex; flex-direction: column; height: 100vh; height: 100svh; min-height: 0; overflow: hidden; }
 
 /* ── Header ── */
 header {
@@ -62,7 +62,7 @@ header {
 
 .brand { font-family: 'Manufacturing Consent', var(--k-serif); font-style: normal; font-size: 26px; color: var(--k-orange); flex-shrink: 0; letter-spacing: 0.01em; white-space: nowrap; }
 .brand .kit { color: var(--k-orange); }
-.brand .slash { color: rgba(217,107,31,0.45); font-style: normal; }
+.brand .slash { color: rgba(52,121,98,0.45); font-style: normal; }
 .h-rule { width: 1px; height: 16px; background: var(--k-faint); flex-shrink: 0; }
 
 .loc-bar { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
@@ -222,11 +222,12 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
     display: flex; gap: 6px; padding: 12px 18px;
     border-bottom: var(--k-border); background: var(--k-white);
   }
-  .tog-grp button { padding: 4px 6px; font-size: 9px; }
+  /* Touch targets: minst 44×44 px */
+  .tog-grp button { padding: 10px 8px; font-size: 9px; min-height: 44px; }
 
   /* Scroll layout */
   html, body { height: auto; overflow: auto; }
-  #app { height: auto; min-height: 100vh; overflow: visible; }
+  #app { height: auto; min-height: 100svh; min-height: 100vh; overflow: visible; }
   .body-row { flex-direction: column; overflow: visible; height: auto; min-height: 0; }
 
   /* Map: fixed pixel height — Leaflet needs a concrete number */
@@ -235,7 +236,20 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 
   /* Panels: full width, natural height */
   .panel { width: 100% !important; overflow-y: visible; height: auto; border-left: none !important; border-right: none !important; border-bottom: var(--k-border); }
-  .panel-right { border-bottom: none; }
+  .panel-right { border-bottom: none; padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+  /* iOS: förhindra zoom vid input-fokus (kräver minst 16px) */
+  .form-row input[type=text],
+  .form-row input[type=date],
+  .form-row input[type=time] { font-size: 16px; }
+  .search-input { font-size: 16px; }
+
+  /* Modal: scrolla när innehållet är för högt */
+  .modal-overlay {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: max(20px, env(safe-area-inset-top, 20px)) 16px max(20px, env(safe-area-inset-bottom, 20px));
+  }
 }
 
 /* ── Share button ── */
