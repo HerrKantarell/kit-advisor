@@ -1983,9 +1983,9 @@ document.getElementById('fcSlider').addEventListener('input', function(){
   updateFcLabel();
   renderAll();
 });
-document.querySelectorAll('.int-btn').forEach(btn=>{
+document.querySelectorAll('[data-int]').forEach(btn=>{
   btn.addEventListener('click', function(){
-    document.querySelectorAll('.int-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('[data-int]').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
     S.intensity=this.dataset.int;
     if(S.wx) renderAnalysis();
