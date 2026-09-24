@@ -33,15 +33,32 @@ Kortversion:
 - Manicula SVG används i callouts — aldrig som navigation
 
 ## Formellogik
-Effektiv temp = Vindkyla(lufttemp, omgivningsvind + cykelhastighet) + ansträngning + turlängdsstraff + fuktighetsstraff
+Effektiv temp = windChill(lufttemp, omgivningsvind + cykelhastighet) + ansträngning + turlängdsstraff + fuktighetsstraff + thermoOffset
+
+### windChill(T, V) — kontinuerlig modell (inga hopp)
+- V < 4.8 km/h: returnerar T oförändrat
+- T ≤ 10°C: standardformeln (13.12 + 0.6215T − 11.37V^0.16 + 0.3965TV^0.16)
+- 10 < T < 33°C: blend = (33−T)/23, result = T + (wc−T) × blend
+  → full vindkylaeffekt vid 10°C, noll vid 33°C (hudtemperatur)
+- T ≥ 33°C: returnerar T
+
+Den gamla modellen hade cutoff `T>=10 → return T`, vilket gav 3°C-hopp i upplevd temp.
+
+### Övriga bidrag
 - Ansträngning: lugn +4°C, tempo +7°C, hård +11°C
-- Turlängd >3h: -2°C, >1.5h: -1°C
-- Fuktighet >85%: -2°C
-- Vindkyla-formel: giltig under 10°C och vind >4.8 km/h
+- Turlängd >3h: −2°C, >1.5h: −1°C
+- Fuktighet >85%: −2°C
+- Känsla (thermoType): fryser lätt −2°C, normal 0°C, varm lätt +2°C
+
+### calcEff() returnerar
+`{ eff, wc, speedEffect, effort, durP, humP, thermoOffset }`
+- speedEffect = windChill(T, vind+fart) − windChill(T, vind) — hastighetens isolerade bidrag
+- Visas i breakdown när |speedEffect| ≥ 0.5°C
 
 ## State-objekt
-Allt state hålls i S = { lang, tempUnit, windUnit, intensity, fcOffset, lat, lng, locName, wx, wxLive, hourly, isShared, shareName, shareDate }
-Hastighet visas alltid i km/h oavsett vindenhets-inställning.
+Allt state hålls i S = { lang, tempUnit, windUnit, intensity, thermoType, fcOffset, lat, lng, locName, wx, wxLive, hourly, isShared, shareName, shareDate }
+- Hastighet visas alltid i km/h oavsett windUnit-inställning
+- thermoType sparas i localStorage (ka_thermo), ingår INTE i share-URL
 
 ## i18n
 Fullt stöd för SV och EN via T-objekt. Alla strängar ska läggas in i båda språken.
@@ -86,6 +103,7 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - Canvas FontFace-loading måste ske asynkront innan ctx.fillText (Playfair Display)
 - navigator.clipboard.write kräver HTTPS — visa fallback (enbart nedladdning) på HTTP
 - CSS-variabeln --k-orange heter så av historiska skäl men är numera grön (#347962)
+- windChill-formeln är matematiskt giltig även för T>10 men blend:as ned mot 0 vid 33°C
 
 ## Filer
 index.html — hela applikationen
