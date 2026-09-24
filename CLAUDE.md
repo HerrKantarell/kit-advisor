@@ -1,9 +1,9 @@
-# Field/Trip — CLAUDE.md
+# Kit/Advisor — CLAUDE.md
 
 > **Läs alltid index.html innan du gör något.**
 
 ## Vad projektet är
-Väderbaserad cykelklädsel-rådgivare. Single-file HTML-app hostad på GitHub Pages.
+Väderbaserad cykelklädsel-rådgivare. Single-file HTML-app hostad på GitHub Pages (kitadvisor.cc).
 Användaren klickar på en karta, får aktuellt väder via Open-Meteo och
 rekommendationer baserade på effektiv temperatur (vindkyla + ansträngning).
 
@@ -94,7 +94,15 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 1. ~~Delningsbar turlink~~ — klar
 2. ~~Delningsbar kit-bild~~ — klar
 3. ~~Affiliate-sektion~~ — klar (Velodrom.cc, kontextuell, aff=1 i URL)
-4. Gratis MCP — Cloudflare Workers eller Railway
+4. **Namn + domän** — bör lösas innan affiliates formaliseras
+   - ~~Appen heter "Field/Trip" i UI men repot är kit-advisor~~
+   - ~~Bestäm ett namn, köp domän, uppdatera CONFIG.baseUrl~~
+   - Namn: Kit/Advisor, domän: kitadvisor.cc — klart
+5. **Affiliate-expansion** — efter namn/domän är klart
+   - Velodrom.cc: maila info@velodrom.cc, formalisera befintlig ref-länk
+   - Rapha (4%, 30 dagar): skapa publisher-konto på AWIN → ansök till Rapha
+   - Sigma Sports (2,8%, 90 dagar): via Avelon (lämnade AWIN) — bär PNS, MAAP, CdC
+6. Gratis MCP — Cloudflare Workers eller Railway
 
 ## Känt beteende / quirks
 - Safari kräver explicit pixelhöjd på #map (inte flex-baserat) + invalidateSize() x2
