@@ -21,8 +21,8 @@ rekommendationer baserade på effektiv temperatur (vindkyla + ansträngning).
 ## Hosting
 GitHub Pages — HerrKantarell/kit-advisor
 Allt lever i index.html. Inga byggsteg, inga beroenden att installera.
-Custom domän: kitadvisor.cc (köpt via Porkbun, registrerad på Leo Genbergs AB)
-DNS: ALIAS + CNAME → herrKantarell.github.io. HTTPS via Let's Encrypt (GitHub hanterar automatiskt).
+Custom domän: kitadvisor.cc — registrerad och DNS-hanterad hos Porkbun (porkbun.com), ägare Leo Genbergs AB
+DNS (i Porkbun): ALIAS + CNAME → herrKantarell.github.io. DNS går INTE via Cloudflare. HTTPS via Let's Encrypt (GitHub hanterar automatiskt).
 
 ## Design
 Kantarell v2 — se DESIGN.md för designreferens.
@@ -111,6 +111,14 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - llms.txt i repo-roten (för AI-crawlers: Perplexity, ChatGPT m.fl.)
 - <html lang="en"> (default engelska)
 
+### Fas 6 — Besöksstatistik
+- Cloudflare Web Analytics (gratis, cookiefri → ingen cookie-banner behövs)
+- JS-snippet (beacon.min.js, token i data-cf-beacon) ligger precis före </body> i index.html, enligt Cloudflares instruktion
+- Kräver inte Cloudflare-DNS — domänen ligger kvar hos Porkbun
+- Statistik: dash.cloudflare.com → Analytics & Logs → Web Analytics → kitadvisor.cc
+- Begränsning: inga custom events (affiliate-klick, "Dela tur" m.m. mäts inte).
+  Om det behövs: redirect-räknare för affiliate-länkar eller komplettera med GoatCounter/Plausible
+
 ## Roadmap (prioritetsordning)
 1. ~~Delningsbar turlink~~ — klar
 2. ~~Delningsbar kit-bild~~ — klar
@@ -133,6 +141,7 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - navigator.clipboard.write kräver HTTPS — visa fallback (enbart nedladdning) på HTTP
 - CSS-variabeln --k-orange heter så av historiska skäl men är numera grön (#347962)
 - windChill-formeln är matematiskt giltig även för T>10 men blend:as ned mot 0 vid 33°C
+- Annonsblockerare (uBlock m.fl.) blockerar Cloudflare-beacon — egna besök syns ofta inte i statistiken
 
 ## Filer
 index.html — hela applikationen
