@@ -512,6 +512,16 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 }
 .onboard-skip:hover { background: var(--k-bg); color: var(--k-ink); }
 
+/* ── Wind hint ── */
+.wind-hint-toggle {
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; user-select: none; padding: 1px 0;
+}
+.wind-hint-toggle:hover .wind-hint-text { color: var(--k-ink); }
+.wind-hint-body { padding-top: 9px; font-size: 12px; color: var(--k-ink); line-height: 1.55; }
+#windArrow { transition: transform 0.25s ease; display: inline-block; }
+#windHintCaret { transition: transform 0.2s ease; }
+
 /* ── Focus visible ── */
 :focus-visible {
   outline: 2px solid var(--k-orange);
@@ -545,8 +555,8 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
     </div>
     <div class="h-toggles" id="hToggles">
       <div class="tog-grp" id="langTog">
-        <button class="tog active" data-v="sv">SV</button>
-        <button class="tog" data-v="en">EN</button>
+        <button class="tog" data-v="sv">SV</button>
+        <button class="tog active" data-v="en">EN</button>
       </div>
       <div class="tog-grp" id="tempTog">
         <button class="tog active" data-v="C">°C</button>
@@ -655,6 +665,14 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
       <div class="p-sec">
         <div class="sec-label" id="lblAnalysis"></div>
         <div id="analysisArea"><div class="empty" id="analysisEmpty"></div></div>
+      </div>
+      <div class="p-sec" id="windHintSec" style="display:none; padding-top:11px; padding-bottom:11px;">
+        <div class="wind-hint-toggle" onclick="toggleWindHint()">
+          <i class="ph ph-arrow-up" id="windArrow" style="font-size:16px; color:var(--k-orange); flex-shrink:0;"></i>
+          <span class="wind-hint-text" id="windHintLabel" style="flex:1; font-size:12px; color:var(--k-mid);"></span>
+          <i class="ph ph-caret-down" id="windHintCaret" style="font-size:11px; color:var(--k-mid); flex-shrink:0;"></i>
+        </div>
+        <div class="wind-hint-body" id="windHintBody" style="display:none;"></div>
       </div>
       <div class="p-sec">
         <div class="sec-label" id="lblKit"></div>
@@ -789,7 +807,7 @@ const AFFILIATE = {
 
 // ─── STATE ────────────────────────────────────────────────
 const S = {
-  lang:'sv', tempUnit:'C', windUnit:'kmh', intensity:'easy',
+  lang:'en', tempUnit:'C', windUnit:'kmh', intensity:'easy',
   fcOffset:0, lat:null, lng:null, locName:'',
   wx:null, wxLive:null, hourly:null,
   isShared:false, shareName:'', shareDate:'', showAff:false,
@@ -896,6 +914,9 @@ const T = {
     thermoLbl: 'Kroppstemperatur',
     thermoC: 'Fryser lätt', thermoN: 'Normal', thermoW: 'Varm lätt',
     thermoBD: k => `Känsla: ${k>0?'+':''}${k}°`,
+    windDirs: ['N','NÖ','Ö','SÖ','S','SV','V','NV'],
+    windHintLabel: dir => `Vind från ${dir}`,
+    windHintTip: dir => `Cykla mot ${dir} i första halvan av turen — du får medvind på hemvägen när du är trött.`,
     kitPlaceholders: {
       upper: 'ex. Pas Normal Escapism Jacket',
       lower: 'ex. Castelli Free Aero Race',
@@ -1001,6 +1022,9 @@ const T = {
     thermoLbl: 'Thermostat',
     thermoC: 'Runs cold', thermoN: 'Normal', thermoW: 'Runs warm',
     thermoBD: k => `Thermostat: ${k>0?'+':''}${k}°`,
+    windDirs: ['N','NE','E','SE','S','SW','W','NW'],
+    windHintLabel: dir => `Wind from ${dir}`,
+    windHintTip: dir => `Head ${dir} into the wind for the first half — you'll have a tailwind on the way back when you're tired.`,
     kitPlaceholders: {
       upper: 'e.g. Pas Normal Escapism Jacket',
       lower: 'e.g. Castelli Free Aero Race',
@@ -1194,7 +1218,7 @@ function setStatus(state) {
 
 // ─── WEATHER FETCH ────────────────────────────────────────
 async function fetchWeather(lat, lng, days=2) {
-  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&current=temperature_2m,wind_speed_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code&wind_speed_unit=kmh&timezone=auto&forecast_days=${days}`;
+  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code&wind_speed_unit=kmh&timezone=auto&forecast_days=${days}`;
   const r=await fetch(url);
   if(!r.ok) throw new Error('API');
   const d=await r.json();
@@ -1209,17 +1233,18 @@ async function fetchWeather(lat, lng, days=2) {
   }
   S.hourly={
     times:d.hourly.time, temp:d.hourly.temperature_2m,
-    wind:d.hourly.wind_speed_10m, gusts:d.hourly.wind_gusts_10m,
+    wind:d.hourly.wind_speed_10m, windDir:d.hourly.wind_direction_10m,
+    gusts:d.hourly.wind_gusts_10m,
     precip:d.hourly.precipitation, humidity:d.hourly.relative_humidity_2m,
     wcode:d.hourly.weather_code, nowIdx:nowIdx>=0?nowIdx:0,
   };
-  return { temp:c.temperature_2m, wind:c.wind_speed_10m, gusts:c.wind_gusts_10m, precip:c.precipitation, humidity:c.relative_humidity_2m, wcode:c.weather_code };
+  return { temp:c.temperature_2m, wind:c.wind_speed_10m, windDir:c.wind_direction_10m, gusts:c.wind_gusts_10m, precip:c.precipitation, humidity:c.relative_humidity_2m, wcode:c.weather_code };
 }
 
 function wxAtOffset(off) {
   if(!S.hourly||off===0) return S.wxLive;
   const idx=Math.min(S.hourly.nowIdx+off, S.hourly.temp.length-1);
-  return { temp:S.hourly.temp[idx], wind:S.hourly.wind[idx], gusts:S.hourly.gusts[idx], precip:S.hourly.precip[idx], humidity:S.hourly.humidity[idx], wcode:S.hourly.wcode[idx] };
+  return { temp:S.hourly.temp[idx], wind:S.hourly.wind[idx], windDir:S.hourly.windDir?.[idx], gusts:S.hourly.gusts[idx], precip:S.hourly.precip[idx], humidity:S.hourly.humidity[idx], wcode:S.hourly.wcode[idx] };
 }
 
 // ─── REVERSE GEOCODE ──────────────────────────────────────
@@ -1855,7 +1880,34 @@ function renderAffiliateLinks(eff, isRain) {
   ).join('');
 }
 
-function renderAll() { if(!S.wx) return; renderWeather(S.wx); renderAnalysis(); }
+// ─── WIND HINT ────────────────────────────────────────────
+function windCardinal(deg) {
+  const dirs = T[S.lang].windDirs;
+  return dirs[Math.round(deg / 45) % 8];
+}
+
+function renderWindHint() {
+  const sec = document.getElementById('windHintSec');
+  if (!S.wx || S.wx.windDir == null || S.wx.wind < 15) {
+    sec.style.display = 'none';
+    return;
+  }
+  const dir = windCardinal(S.wx.windDir);
+  document.getElementById('windArrow').style.transform = `rotate(${S.wx.windDir}deg)`;
+  document.getElementById('windHintLabel').textContent  = T[S.lang].windHintLabel(dir);
+  document.getElementById('windHintBody').textContent   = T[S.lang].windHintTip(dir);
+  sec.style.display = 'block';
+}
+
+function toggleWindHint() {
+  const body  = document.getElementById('windHintBody');
+  const caret = document.getElementById('windHintCaret');
+  const open  = body.style.display === 'none';
+  body.style.display    = open ? 'block' : 'none';
+  caret.style.transform = open ? 'rotate(180deg)' : '';
+}
+
+function renderAll() { if(!S.wx) return; renderWeather(S.wx); renderAnalysis(); renderWindHint(); }
 
 // ─── UPDATE UI LABELS ─────────────────────────────────────
 function updateLabels() {
