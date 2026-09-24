@@ -1,0 +1,46 @@
+# Kit/Advisor
+
+> What to wear on your cycling ride — based on real weather.
+
+Kit/Advisor is a free web tool at kitadvisor.cc that recommends cycling clothing based on live weather at any location worldwide. It computes a feels-like temperature that accounts for wind chill, riding speed, effort intensity, ride duration, humidity and personal thermostat preference — then maps that to a specific kit list.
+
+## How it works
+
+1. Click the map or search for a location to fetch live weather (Open-Meteo API)
+2. Set ride duration (0.5–8 h), average speed (14–44 km/h) and intensity (easy / tempo / hard)
+3. Get a complete kit recommendation: jersey, bib shorts or tights, gloves, headwear, footwear, rain gear
+4. Optionally share the ride as a link or export a kit card image
+
+## Feels-like temperature formula
+
+Effective temp = windChill(air temp, ambient wind + riding speed) + effort bonus + duration penalty + humidity penalty + thermostat offset
+
+- Wind chill: standard North American formula, blended continuously between 10°C (full effect) and 33°C (zero effect) to avoid discontinuities
+- Effort bonus: easy +4°C, tempo +7°C, hard +11°C
+- Duration penalty: >3 h −2°C, >1.5 h −1°C
+- Humidity penalty: >85% −2°C
+- Thermostat offset: runs cold −2°C, normal 0°C, runs warm +2°C
+
+## Kit thresholds
+
+- ≥22°C: short sleeve jersey + bib shorts
+- 17–22°C: jersey + arm warmers + bib shorts + light gloves
+- 12–17°C: long sleeve jersey + bib shorts (knee warmers optional) + thin gloves + ear warmer
+- 7–12°C: thermal jersey + bib tights + winter gloves + headband
+- 2–7°C: winter jacket + winter bib tights + heavy gloves + cap + shoe covers
+- <2°C: double layer + extreme gloves + balaclava + winter shoes
+
+## Features
+
+- Live weather via Open-Meteo (free, no API key)
+- Wind direction advisory: suggests riding into the wind first half for a tailwind home
+- Shareable ride links (name, date, time, kit configuration)
+- Exportable kit card image (Canvas API, 1080×1920)
+- Contextual affiliate links to cycling clothing retailers
+- Celsius / Fahrenheit and km/h / m/s toggles
+- English and Swedish language support
+- Mobile-responsive single-file HTML app, no build step
+
+## Source
+
+Single file: index.html — hosted on GitHub Pages at github.com/HerrKantarell/kit-advisor
