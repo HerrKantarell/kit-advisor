@@ -20,6 +20,8 @@ rekommendationer baserade på effektiv temperatur (vindkyla + ansträngning).
 ## Hosting
 GitHub Pages — HerrKantarell/kit-advisor
 Allt lever i index.html. Inga byggsteg, inga beroenden att installera.
+Custom domän: kitadvisor.cc (köpt via Porkbun, registrerad på Leo Genbergs AB)
+DNS: ALIAS + CNAME → herrKantarell.github.io. HTTPS via Let's Encrypt (GitHub hanterar automatiskt).
 
 ## Design
 Kantarell v2 — se DESIGN.md för designreferens.
@@ -57,8 +59,10 @@ Den gamla modellen hade cutoff `T>=10 → return T`, vilket gav 3°C-hopp i uppl
 
 ## State-objekt
 Allt state hålls i S = { lang, tempUnit, windUnit, intensity, thermoType, fcOffset, lat, lng, locName, wx, wxLive, hourly, isShared, shareName, shareDate }
+- lang defaultar till 'en' (engelska)
 - Hastighet visas alltid i km/h oavsett windUnit-inställning
 - thermoType sparas i localStorage (ka_thermo), ingår INTE i share-URL
+- wx-objektet innehåller nu även windDir (grader, meteorologisk konvention — varifrån vinden blåser)
 
 ## i18n
 Fullt stöd för SV och EN via T-objekt. Alla strängar ska läggas in i båda språken.
@@ -88,7 +92,23 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - affSec visas alltid i normalt läge; i delat läge bara om aff=1 i URL
 - generateShareUrl lägger alltid till aff=1
 - panel-left breddad 270→320px för annonsplats
-- #adSlotSec i vänsterpanelen: 300×250 placeholder under delningsknapparna
+- #adSlotSec i vänsterpanelen: 300×250 placeholder — för tillfället dold (display:none)
+
+### Fas 4 — Vindriktningsuppmaning
+- API-anropet hämtar wind_direction_10m (current + hourly)
+- #windHintSec i höger panel (mellan analys och utrustning), dold om vind < 15 km/h
+- Kollapserad som default, expanderas med toggleWindHint()
+- ph-arrow-up roteras till windDir-grader (pekar mot varifrån vinden kommer)
+- Strängar: T[lang].windHintLabel(dir), T[lang].windHintTip(dir), T[lang].windDirs[]
+
+### Fas 5 — Namn, domän, SEO
+- Namn: Kit/Advisor (var Field/Trip)
+- Domän: kitadvisor.cc — Porkbun, Leo Genbergs AB
+- CONFIG.baseUrl = 'https://kitadvisor.cc'
+- SEO: meta description, OG-taggar, twitter:card, canonical, JSON-LD (WebApplication)
+- og:image: og-image.svg (1200×630, statisk SVG i repo-roten)
+- llms.txt i repo-roten (för AI-crawlers: Perplexity, ChatGPT m.fl.)
+- <html lang="en"> (default engelska)
 
 ## Roadmap (prioritetsordning)
 1. ~~Delningsbar turlink~~ — klar
@@ -119,3 +139,5 @@ CLAUDE.md — denna fil
 DESIGN.md — designsystemreferens (Kantarell v2)
 BUGS.md — kända buggar och quirks
 README.md — projektöversikt
+og-image.svg — Open Graph-bild (1200×630) för länkförhandsvisningar
+llms.txt — maskinläsbar projektbeskrivning för AI-crawlers
