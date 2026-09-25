@@ -148,7 +148,6 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 index.html — hela applikationen
 CLAUDE.md — denna fil
 DESIGN.md — designsystemreferens (Kantarell v2)
-BUGS.md — kända buggar och quirks
 README.md — projektöversikt
 og-image.svg — Open Graph-bild (1200×630) för länkförhandsvisningar
 llms.txt — maskinläsbar projektbeskrivning för AI-crawlers

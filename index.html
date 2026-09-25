@@ -924,6 +924,7 @@ const T = {
     rideNamePlaceholder: 'ex. Söndagsturen Amager',
     sharedConfig: 'Turkonfiguration (låst)',
     ridePassed: 'Turen har passerat — visar senast tillgänglig data.',
+    networkErr: 'Nätverksfel — kontrollera anslutningen.',
     forecastUncertain: 'Prognos med osäkerhet — uppdateras närmre startdagen.',
     forecastUnavailable: d => `Prognos tillgänglig fr.o.m. ${d}.`,
     shareImageBtn: 'Dela som bild',
@@ -1032,6 +1033,7 @@ const T = {
     rideNamePlaceholder: 'e.g. Sunday ride Amager',
     sharedConfig: 'Ride setup (locked)',
     ridePassed: 'This ride has passed — showing last available data.',
+    networkErr: 'Network error — check your connection.',
     forecastUncertain: 'Forecast with uncertainty — check again closer to the ride.',
     forecastUnavailable: d => `Forecast available from ${d}.`,
     shareImageBtn: 'Share as image',
@@ -1103,7 +1105,7 @@ function useGeolocation() {
   btn.disabled = true;
   btn.style.opacity = '0.6';
   navigator.geolocation.getCurrentPosition(
-    pos => { selectLocation(pos.coords.latitude, pos.coords.longitude); },
+    pos => { selectLocation(pos.coords.latitude, pos.coords.longitude, { pan:true }); },
     ()  => { btn.disabled = false; btn.style.opacity = ''; }
   );
 }
@@ -1148,19 +1150,29 @@ async function runSearch(q) {
 function renderSearchResults(results) {
   const box = document.getElementById('searchResults');
   if (!results.length) { box.classList.remove('open'); return; }
-  box.innerHTML = results.map((r, i) => {
+  box.replaceChildren(...results.map(r => {
     const a = r.address || {};
     const main = a.city || a.town || a.village || a.municipality || a.county || r.name || '';
     const parts = [a.state, a.country].filter(Boolean).join(', ');
-    return `<div class="search-result-item" onclick="selectSearchResult(${r.lat},${r.lon},'${(main+', '+parts).replace(/'/g,"\\'")}')">
-      <div class="sr-main">${main}</div>
-      ${parts ? `<div class="sr-sub">${parts}</div>` : ''}
-    </div>`;
-  }).join('');
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    const mainEl = document.createElement('div');
+    mainEl.className = 'sr-main';
+    mainEl.textContent = main;
+    item.appendChild(mainEl);
+    if (parts) {
+      const subEl = document.createElement('div');
+      subEl.className = 'sr-sub';
+      subEl.textContent = parts;
+      item.appendChild(subEl);
+    }
+    item.addEventListener('click', () => selectSearchResult(r.lat, r.lon));
+    return item;
+  }));
   box.classList.add('open');
 }
 
-function selectSearchResult(lat, lng, name) {
+function selectSearchResult(lat, lng) {
   document.getElementById('searchInput').value = '';
   closeSearchResults();
   map.setView([lat, lng], 11);
@@ -1194,8 +1206,9 @@ function placeMarker(lat,lng) {
 }
 
 // ─── SELECT LOCATION ─────────────────────────────────────
-async function selectLocation(lat, lng) {
+async function selectLocation(lat, lng, opts = {}) {
   S.lat=lat; S.lng=lng; S.fcOffset=0;
+  if (opts.pan) map.setView([lat, lng], Math.max(map.getZoom(), 10));
   document.getElementById('fcSlider').value=0;
   placeMarker(lat,lng);
   document.getElementById('mapHint').style.display='none';
@@ -1211,7 +1224,7 @@ async function selectLocation(lat, lng) {
     const days = S.isShared ? 16 : 2;
     const [weather,name] = await Promise.all([fetchWeather(lat,lng,days), reverseGeocode(lat,lng)]);
     S.wxLive=weather; S.wx=weather;
-    if (!S.isShared) S.locName=name;
+    if (!S.isShared || !S.locName) S.locName=name;
     setLocName(S.isShared ? (S.shareName||name) : name);
     if (S.isShared) {
       applySharedDateOffset();
@@ -1225,7 +1238,7 @@ async function selectLocation(lat, lng) {
     updateFcLabel();
   } catch(e) {
     console.error(e);
-    document.getElementById('wxArea').innerHTML=`<div class="callout danger">${MANICULA_D}<p>Nätverksfel — kontrollera anslutningen.</p></div>`;
+    document.getElementById('wxArea').innerHTML=`<div class="callout danger">${MANICULA_D}<p>${t('networkErr')}</p></div>`;
     setStatus('error');
   }
 }
@@ -1563,7 +1576,8 @@ function fmtSharedDate() {
 function openShareModal() {
   if (!S.lat) return;
   const now = new Date();
-  document.getElementById('shareDateInput').value = now.toISOString().substring(0, 10);
+  const pad = n => String(n).padStart(2, '0');
+  document.getElementById('shareDateInput').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
   document.getElementById('shareTimeInput').value = now.toTimeString().substring(0, 5);
   document.getElementById('shareNameInput').value = '';
   document.getElementById('shareUrlRow').style.display = 'none';
@@ -1687,10 +1701,11 @@ function collectKitItems(eff, w) {
 }
 
 async function generateKitImage() {
+  // Fonts that fail to load fall back to Georgia — never block the image
   await Promise.all([
     document.fonts.load('italic 400 80px "Playfair Display"'),
     document.fonts.load('400 80px "Manufacturing Consent"'),
-  ]);
+  ].map(p => p.catch(() => {})));
   const canvas  = document.getElementById('kitCanvas');
   const ctx     = canvas.getContext('2d');
   const W = 1080, H = 1920, m = 80;
@@ -1816,7 +1831,7 @@ async function generateKitImage() {
   // ── Footer
   hline(H - 80);
   ctx.font = `400 22px ${mono}`; ctx.fillStyle = mid; ctx.textAlign = 'center';
-  ctx.fillText('herrkantarell.github.io/kit-advisor', W / 2, H - 44);
+  ctx.fillText(CONFIG.baseUrl.replace(/^https?:\/\//, ''), W / 2, H - 44);
   ctx.textAlign = 'left';
 }
 
@@ -1878,7 +1893,7 @@ function downloadKitImage() {
     a.href = url;
     a.download = `kit-${(S.locName || 'ride').replace(/[^a-z0-9]/gi, '-').toLowerCase()}.png`;
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
 }
 
@@ -2011,7 +2026,7 @@ function updateLabels() {
     document.getElementById('locName').textContent       = t('waiting');
     document.getElementById('mobLocName').textContent    = t('waiting');
   } else {
-    setLocName(S.locName);
+    setLocName(S.isShared && S.shareName ? S.shareName : S.locName);
     renderAll();
   }
   // Sync status label
@@ -2112,7 +2127,7 @@ document.querySelectorAll('[data-thermo]').forEach(b =>
 updateLabels();
 setStatus('waiting');
 if (hasSharedUrl) {
-  selectLocation(S.lat, S.lng);
+  selectLocation(S.lat, S.lng, { pan:true });
 } else if (localStorage.getItem('ka_onboarded')) {
   selectLocation(55.6761, 12.5683);
 } else {
