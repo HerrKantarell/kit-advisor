@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Dold prototyp: länkas inte från index.html, finns inte i sitemap.xml -->
+<meta name="robots" content="noindex, nofollow">
+<title>Wardrobe — Kit/Advisor</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" media="print" onload="this.media='all'">
+
+<style>
+@font-face {
+  font-family: 'Manufacturing Consent';
+  src: url('https://cdn.jsdelivr.net/gh/googlefonts/manufacturing-consent-font/fonts/ttf/ManufacturingConsent-Regular.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+:root {
+  --k-ink:         #111111;
+  --k-bg:          #F7F7F5;
+  --k-white:       #FFFFFF;
+  --k-mid:         #5a5a57;
+  --k-faint:       #E2E2DF;
+  --k-orange:      #347962;
+  --k-orange-tt:   rgba(52,121,98,0.06);
+  --k-sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --k-serif: 'Playfair Display', Georgia, serif;
+  --k-mono: ui-monospace, 'SF Mono', 'Courier New', monospace;
+  --k-radius: 10px;
+  --k-radius-sm: 7px;
+  --k-border: 0.5px solid var(--k-faint);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--k-bg);
+  color: var(--k-ink);
+  font-family: var(--k-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; }
+
+/* ── Header ── */
+header {
+  position: sticky; top: 0; z-index: 50;
+  height: 50px;
+  background: var(--k-white);
+  border-bottom: var(--k-border);
+  display: flex; align-items: center;
+  padding: 0 18px; gap: 12px;
+}
+.brand { font-family: 'Manufacturing Consent', var(--k-serif); font-size: 26px; color: var(--k-orange); text-decoration: none; white-space: nowrap; letter-spacing: 0.01em; }
+.brand .slash { color: rgba(52,121,98,0.45); }
+.h-rule { width: 1px; height: 16px; background: var(--k-faint); flex-shrink: 0; }
+.h-title { font-family: var(--k-serif); font-style: italic; font-size: 17px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.proto-pill { font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 100px; border: 0.5px solid var(--k-orange); color: var(--k-orange); background: var(--k-orange-tt); white-space: nowrap; }
+
+.tog-grp { display: flex; border: var(--k-border); border-radius: var(--k-radius-sm); overflow: hidden; background: var(--k-bg); flex-shrink: 0; }
+.tog-grp button {
+  border: none; background: transparent; color: var(--k-mid);
+  font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.04em;
+  padding: 6px 10px; cursor: pointer; transition: all 0.12s; line-height: 1; min-height: 32px;
+}
+.tog-grp button:not(:last-child) { border-right: var(--k-border); }
+.tog-grp button.active { background: var(--k-ink); color: var(--k-white); }
+.tog-grp button:not(.active):hover { background: var(--k-faint); color: var(--k-ink); }
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: 380px 1fr; min-height: calc(100vh - 50px); }
+.doll-col {
+  position: sticky; top: 50px; align-self: start;
+  height: calc(100vh - 50px);
+  background: var(--k-white); border-right: var(--k-border);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 18px 18px 14px;
+}
+.doll-label { align-self: stretch; display: flex; justify-content: space-between; align-items: baseline; }
+.sec-label { font-family: var(--k-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 11px; }
+.doll-wrap { flex: 1; min-height: 0; width: 100%; display: flex; justify-content: center; }
+#doll { height: 100%; max-height: 560px; width: auto; max-width: 100%; }
+.doll-caption { align-self: stretch; font-size: 11px; color: var(--k-mid); line-height: 1.5; min-height: 34px; text-align: center; }
+.doll-caption b { color: var(--k-ink); font-weight: 500; }
+.link-btn { border: none; background: none; color: var(--k-mid); font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; padding: 2px 0; }
+.link-btn:hover { color: var(--k-ink); }
+
+.content { padding: 18px 24px 60px; max-width: 980px; width: 100%; }
+
+.tabs { display: flex; gap: 6px; margin-bottom: 18px; }
+.tab {
+  border: var(--k-border); background: var(--k-white); color: var(--k-mid);
+  font-size: 13px; font-weight: 500; padding: 9px 16px; border-radius: 100px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px; min-height: 40px;
+}
+.tab.active { background: var(--k-ink); color: var(--k-white); border-color: var(--k-ink); }
+.tab .count { font-family: var(--k-mono); font-size: 10px; opacity: 0.7; }
+
+/* ── Toolbar ── */
+.toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.toolbar .spacer { flex: 1; }
+.btn {
+  border: var(--k-border); background: var(--k-white); color: var(--k-ink);
+  font-size: 12px; font-weight: 500; padding: 8px 13px; border-radius: var(--k-radius-sm);
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-height: 36px;
+}
+.btn:hover { background: var(--k-faint); }
+.btn.primary { background: var(--k-orange); border-color: var(--k-orange); color: var(--k-white); }
+.btn.primary:hover { background: #2c6653; }
+.btn.danger { color: #a03838; }
+.btn i { font-size: 15px; }
+
+/* ── Zones & cards ── */
+.zone { margin-bottom: 26px; }
+.zone-hd { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.zone-title { font-family: var(--k-serif); font-style: italic; font-size: 20px; }
+.zone-count { font-family: var(--k-mono); font-size: 10px; color: var(--k-mid); letter-spacing: 0.06em; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 10px; }
+.card {
+  position: relative; background: var(--k-white); border: var(--k-border); border-radius: var(--k-radius);
+  cursor: pointer; overflow: hidden; text-align: left; padding: 0; color: inherit;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.card:hover { border-color: #cfcfca; }
+.card.on { border-color: var(--k-orange); box-shadow: 0 0 0 1px var(--k-orange); }
+.card.wish { border-style: dashed; border-color: #bdbdb8; }
+.card.wish.on { border-color: var(--k-orange); }
+.card-thumb { background: var(--k-bg); height: 108px; display: flex; align-items: center; justify-content: center; }
+.card-thumb svg { height: 96px; width: 96px; }
+.card-body { padding: 8px 10px 10px; }
+.card-brand { font-family: var(--k-mono); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--k-mid); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 14px; }
+.card-name { font-size: 12.5px; font-weight: 500; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-type { font-size: 11px; color: var(--k-mid); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-flags { position: absolute; top: 7px; left: 8px; display: flex; gap: 4px; }
+.flag { font-family: var(--k-mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border-radius: 100px; background: var(--k-white); border: var(--k-border); color: var(--k-mid); }
+.flag.fav { color: var(--k-orange); border-color: rgba(52,121,98,0.35); }
+.card-edit { position: absolute; top: 5px; right: 5px; width: 30px; height: 30px; border-radius: 50%; border: var(--k-border); background: var(--k-white); color: var(--k-mid); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; }
+.card-edit:hover { color: var(--k-ink); }
+.card-add { border-style: dashed; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 160px; color: var(--k-mid); font-size: 12px; background: transparent; }
+.card-add i { font-size: 22px; }
+
+/* ── Empty state ── */
+.empty { background: var(--k-white); border: var(--k-border); border-radius: var(--k-radius); padding: 22px; margin-bottom: 22px; }
+.empty h2 { font-family: var(--k-serif); font-style: italic; font-weight: 400; font-size: 24px; margin-bottom: 6px; }
+.empty p { font-size: 13px; color: var(--k-mid); max-width: 520px; margin-bottom: 14px; }
+
+/* ── Quick add ── */
+.quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.q-tile { position: relative; border: var(--k-border); background: var(--k-white); border-radius: var(--k-radius-sm); padding: 6px 4px 7px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--k-ink); }
+.q-tile:hover { border-color: #cfcfca; }
+.q-tile.has { border-color: rgba(52,121,98,0.45); background: var(--k-orange-tt); }
+.q-tile svg { width: 58px; height: 58px; }
+.q-tile span { font-size: 10.5px; line-height: 1.25; text-align: center; color: var(--k-mid); }
+.q-tile.has span { color: var(--k-orange); }
+.q-badge { position: absolute; top: 4px; right: 5px; font-family: var(--k-mono); font-size: 10px; color: var(--k-white); background: var(--k-orange); border-radius: 100px; min-width: 17px; height: 17px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+.q-zone { font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--k-mid); margin: 14px 0 7px; }
+.q-zone:first-child { margin-top: 0; }
+
+/* ── Today ── */
+.today-grid { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.box { background: var(--k-white); border: var(--k-border); border-radius: var(--k-radius); padding: 15px 16px; }
+.wx-line { font-size: 12px; color: var(--k-mid); margin: 10px 0 12px; min-height: 18px; }
+.eff-card { background: var(--k-bg); border: var(--k-border); border-radius: var(--k-radius); padding: 12px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.eff-label { font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--k-mid); }
+.eff-number { font-family: var(--k-mono); font-size: 38px; font-weight: 300; line-height: 1; letter-spacing: -0.03em; color: var(--k-orange); }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 2px; background: var(--k-faint); border-radius: 1px; outline: none; cursor: pointer; margin: 8px 0 14px; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--k-orange); border: 2px solid var(--k-white); box-shadow: 0 0 0 1px var(--k-faint); cursor: pointer; }
+input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--k-orange); border: 2px solid var(--k-white); box-shadow: 0 0 0 1px var(--k-faint); cursor: pointer; }
+.row-ctl { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; font-size: 12px; font-weight: 500; }
+.assume { font-size: 11px; color: var(--k-mid); line-height: 1.5; margin-top: 6px; }
+
+.kit-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: var(--k-border); }
+.kit-row:last-child { border-bottom: none; }
+.kit-ph { font-size: 15px; color: var(--k-mid); flex-shrink: 0; margin-top: 1px; width: 18px; text-align: center; }
+.kit-cat { font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 2px; }
+.kit-name { font-size: 13px; font-weight: 500; line-height: 1.35; }
+.kit-name .own { color: var(--k-ink); }
+.kit-note { font-size: 11px; color: var(--k-mid); margin-top: 2px; line-height: 1.4; }
+.kit-tag { display: inline-block; font-family: var(--k-mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; padding: 1px 6px; border-radius: 100px; margin-left: 4px; vertical-align: 1px; border: var(--k-border); color: var(--k-mid); }
+.kit-tag.ok { color: var(--k-orange); border-color: rgba(52,121,98,0.35); background: var(--k-orange-tt); }
+.kit-tag.swap { color: #7a6420; border-color: rgba(160,130,40,0.4); background: rgba(200,160,40,0.07); }
+.kit-tag.miss { border-style: dashed; }
+
+.callout { background: var(--k-orange-tt); border-left: 2px solid var(--k-orange); border-radius: 0 var(--k-radius) var(--k-radius) 0; padding: 9px 13px 9px 11px; margin-bottom: 12px; font-size: 12px; line-height: 1.55; }
+
+/* ── Modal ── */
+.modal-bg { position: fixed; inset: 0; background: rgba(17,17,17,0.28); z-index: 100; display: none; align-items: center; justify-content: center; padding: 16px; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.modal-bg.open { display: flex; }
+.modal { background: var(--k-white); border-radius: 14px; width: 100%; max-width: 620px; max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.12); }
+.modal-hd { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 12px; border-bottom: var(--k-border); position: sticky; top: 0; background: var(--k-white); z-index: 2; }
+.modal-hd h3 { font-family: var(--k-serif); font-style: italic; font-weight: 400; font-size: 21px; }
+.x-btn { border: none; background: none; font-size: 20px; color: var(--k-mid); cursor: pointer; width: 36px; height: 36px; }
+.modal-body { padding: 16px 20px 20px; }
+.modal-ft { display: flex; gap: 8px; padding: 12px 20px 16px; border-top: var(--k-border); position: sticky; bottom: 0; background: var(--k-white); }
+.modal-ft .spacer { flex: 1; }
+
+.ed-top { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+.ed-preview { width: 132px; height: 132px; flex-shrink: 0; background: var(--k-bg); border: var(--k-border); border-radius: var(--k-radius); display: flex; align-items: center; justify-content: center; }
+.ed-preview svg { width: 118px; height: 118px; }
+.ed-fields { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.f-row label { display: block; font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--k-mid); margin-bottom: 4px; }
+.f-row input[type=text] { width: 100%; font-family: var(--k-sans); font-size: 16px; padding: 8px 10px; border: var(--k-border); border-radius: var(--k-radius-sm); background: var(--k-bg); color: var(--k-ink); outline: none; }
+.f-row input[type=text]:focus { border-color: var(--k-orange); background: var(--k-white); }
+.f-section { margin-bottom: 14px; }
+.type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; max-height: 220px; overflow-y: auto; padding: 2px; }
+.type-tile { border: var(--k-border); background: var(--k-white); border-radius: var(--k-radius-sm); padding: 4px 2px 5px; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: var(--k-mid); }
+.type-tile svg { width: 44px; height: 44px; }
+.type-tile span { font-size: 9.5px; line-height: 1.2; text-align: center; }
+.type-tile.sel { border-color: var(--k-orange); box-shadow: 0 0 0 1px var(--k-orange); color: var(--k-orange); }
+.swatches { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sw { width: 28px; height: 28px; border-radius: 50%; border: 0.5px solid rgba(0,0,0,0.18); cursor: pointer; position: relative; }
+.sw.sel::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 1.5px solid var(--k-orange); }
+.sw.none { background: repeating-linear-gradient(45deg, #fff 0 4px, #e6e6e3 4px 8px); }
+.sw-custom { width: 28px; height: 28px; border: none; padding: 0; background: none; cursor: pointer; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.chip { font-family: var(--k-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; border: var(--k-border); background: var(--k-bg); color: var(--k-mid); padding: 5px 8px; border-radius: 100px; cursor: pointer; }
+.chip:hover { color: var(--k-ink); border-color: #cfcfca; }
+.chk { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; cursor: pointer; }
+.f-row label.chk { display: inline-flex; font-family: var(--k-sans); font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--k-ink); margin: 0; }
+.chk input { accent-color: var(--k-orange); width: 16px; height: 16px; }
+
+.share-input { width: 100%; font-family: var(--k-mono); font-size: 11px; padding: 9px 10px; border: var(--k-border); border-radius: var(--k-radius-sm); background: var(--k-bg); color: var(--k-ink); margin: 10px 0; }
+.banner { background: var(--k-orange-tt); border: 0.5px solid rgba(52,121,98,0.35); border-radius: var(--k-radius); padding: 12px 14px; margin-bottom: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+.banner .spacer { flex: 1; }
+.muted { color: var(--k-mid); font-size: 12px; }
+
+/* ── Mobile ── */
+@media (max-width: 760px) {
+  header { padding: 0 12px; gap: 8px; }
+  .brand { font-size: 22px; }
+  .proto-pill { display: none; }
+  .layout { display: block; }
+  .doll-col { position: sticky; top: 50px; z-index: 20; height: 250px; border-right: none; border-bottom: var(--k-border); padding: 10px 12px 6px; flex-direction: row; align-items: stretch; gap: 10px; }
+  .doll-col .doll-label { display: none; }
+  .doll-wrap { flex: 0 0 auto; width: 120px; }
+  #doll { max-height: 234px; }
+  .doll-caption { text-align: left; align-self: center; font-size: 11px; flex: 1; }
+  .content { padding: 14px 12px 60px; }
+  .today-grid { grid-template-columns: 1fr; }
+  .cards { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .ed-top { flex-direction: column; align-items: stretch; }
+  .ed-preview { width: 100%; height: 120px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="/"><span>Kit</span><span class="slash">/</span>Advisor</a>
+  <div class="h-rule"></div>
+  <div class="h-title" id="hTitle"></div>
+  <span class="proto-pill" id="protoPill"></span>
+  <div class="tog-grp" id="langTog">
+    <button data-v="sv">SV</button>
+    <button data-v="en">EN</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="doll-col">
+    <div class="doll-label">
+      <div class="sec-label" id="lblDoll"></div>
+      <button class="link-btn" id="clearDollBtn" onclick="clearTryOn()"></button>
+    </div>
+    <div class="doll-wrap"><svg id="doll" viewBox="22 6 156 372" role="img" aria-label="Paper doll"></svg></div>
+    <div class="doll-caption" id="dollCaption"></div>
+  </aside>
+
+  <main class="content">
+    <div id="importBanner"></div>
+    <div class="tabs">
+      <button class="tab" id="tabWardrobe" onclick="setTab('wardrobe')"></button>
+      <button class="tab" id="tabToday" onclick="setTab('today')"></button>
+    </div>
+    <section id="viewWardrobe"></section>
+    <section id="viewToday" style="display:none"></section>
+  </main>
+</div>
+
+<!-- Editor -->
+<div class="modal-bg" id="edModal" onclick="if(event.target===this)closeEditor()">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-hd"><h3 id="edTitle"></h3><button class="x-btn" onclick="closeEditor()" aria-label="Close"><i class="ph ph-x"></i></button></div>
+    <div class="modal-body" id="edBody"></div>
+    <div class="modal-ft" id="edFoot"></div>
+  </div>
+</div>
+
+<!-- Quick add -->
+<div class="modal-bg" id="qModal" onclick="if(event.target===this)closeQuick()">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-hd"><h3 id="qTitle"></h3><button class="x-btn" onclick="closeQuick()" aria-label="Close"><i class="ph ph-x"></i></button></div>
+    <div class="modal-body"><p class="muted" id="qIntro" style="margin-bottom:12px"></p><div id="qBody"></div></div>
+    <div class="modal-ft"><div class="spacer"></div><button class="btn primary" id="qDone" onclick="closeQuick()"></button></div>
+  </div>
+</div>
+
+<!-- Backup -->
+<div class="modal-bg" id="bkModal" onclick="if(event.target===this)closeBackup()">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:520px">
+    <div class="modal-hd"><h3 id="bkTitle"></h3><button class="x-btn" onclick="closeBackup()" aria-label="Close"><i class="ph ph-x"></i></button></div>
+    <div class="modal-body">
+      <p class="muted" id="bkIntro"></p>
+      <input class="share-input" id="bkUrl" readonly onclick="this.select()">
+      <button class="btn primary" id="bkCopy" onclick="copyBackup()"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  GARDEROB — prototyp
+//  Allt state i localStorage (ka_wardrobe). Backup = länk med #w=…
+// ═══════════════════════════════════════════════════════════
+
+// ─── PLAGGTYPER ──────────────────────────────────────────
+// zone = grupp i UI, slot = vad som byts ut på dockan, z = lagerordning, def = standardfärg
+const GARMENTS = {
+  base_layer:       { zone:'upper', slot:'base',     z:10, def:'#F4F4F2' },
+  base_thermal:     { zone:'upper', slot:'base',     z:10, def:'#8C8C88' },
+  jersey_ss:        { zone:'upper', slot:'jersey',   z:30, def:'#1F2A44' },
+  jersey_ls:        { zone:'upper', slot:'jersey',   z:30, def:'#347962' },
+  jersey_thermal:   { zone:'upper', slot:'jersey',   z:30, def:'#6D2433' },
+  arm_warmers:      { zone:'upper', slot:'arms',     z:14, def:'#111111' },
+  gilet:            { zone:'upper', slot:'gilet',    z:40, def:'#CBBE9E' },
+  winter_jacket:    { zone:'upper', slot:'jacket',   z:44, def:'#111111' },
+  rain_jacket:      { zone:'upper', slot:'jacket',   z:46, def:'#E8C547' },
+  bibs:             { zone:'lower', slot:'bottom',   z:20, def:'#111111' },
+  bibtights:        { zone:'lower', slot:'bottom',   z:20, def:'#111111' },
+  bibtights_winter: { zone:'lower', slot:'bottom',   z:20, def:'#2A2A28' },
+  knee_warmers:     { zone:'lower', slot:'legwarm',  z:12, def:'#111111' },
+  leg_warmers:      { zone:'lower', slot:'legwarm',  z:12, def:'#111111' },
+  gloves_light:     { zone:'hands', slot:'hands',    z:50, def:'#111111' },
+  gloves_thin:      { zone:'hands', slot:'hands',    z:50, def:'#111111' },
+  gloves_winter:    { zone:'hands', slot:'hands',    z:50, def:'#111111' },
+  gloves_lobster:   { zone:'hands', slot:'hands',    z:50, def:'#1F2A44' },
+  cap:              { zone:'head',  slot:'cap',      z:60, def:'#F4F4F2' },
+  balaclava:        { zone:'head',  slot:'headwear', z:58, def:'#111111' },
+  ear_warmer:       { zone:'head',  slot:'headwear', z:61, def:'#111111' },
+  beanie:           { zone:'head',  slot:'headwear', z:61, def:'#8C8C88' },
+  helmet:           { zone:'head',  slot:'helmet',   z:70, def:'#F4F4F2' },
+  glasses:          { zone:'head',  slot:'eyes',     z:72, def:'#111111' },
+  socks:            { zone:'feet',  slot:'socks',    z:16, def:'#F4F4F2' },
+  winter_shoes:     { zone:'feet',  slot:'shoes',    z:23, def:'#111111' },
+  shoe_covers:      { zone:'feet',  slot:'feet',     z:32, def:'#111111' },
+  shoe_covers_wp:   { zone:'feet',  slot:'feet',     z:32, def:'#2A2A28' },
+};
+const ZONES = ['upper','lower','hands','head','feet'];
+const TYPE_ORDER = Object.keys(GARMENTS);
+
+// Beskärning av dockan för miniatyrer per zon
+const THUMB_VB = {
+  upper: '26 50 148 150', lower: '52 162 96 206', hands: '27 170 38 42',
+  head: '76 12 48 48', feet: '58 316 46 58',
+};
+
+const PALETTE = ['#111111','#2A2A28','#8C8C88','#F4F4F2','#1F2A44','#347962','#6B6B3A','#CBBE9E','#B5542B','#C0392B','#6D2433','#E7A1B0','#8FB8D6','#E8C547','#E07B2E'];
+
+// Kurerad märkeslista (prototyp: text, logotyper kommer i etapp 3). s = kort ordmärke på dockan
+const BRANDS = [
+  {n:'Rapha'},{n:'MAAP'},{n:'Pas Normal Studios',s:'PNS'},{n:'Café du Cycliste',s:'CDC'},
+  {n:'Castelli'},{n:'Assos'},{n:'Gore Wear',s:'GORE'},{n:'Le Col'},{n:'Q36.5'},{n:'Albion'},
+  {n:'Isadore'},{n:'Attaquer'},{n:'Velocio'},{n:'Sportful'},{n:'Santini'},{n:'Alé',s:'ALÉ'},
+  {n:'Endura'},{n:'dhb',s:'DHB'},{n:'Specialized',s:'SPECZD'},{n:'Craft'},{n:'Sigr',s:'SIGR'},
+  {n:'7mesh'},{n:'Search and State',s:'S&S'},{n:'Universal Colours',s:'UC'},{n:'Black Sheep',s:'BSC'},
+  {n:'Giro'},{n:'POC'},{n:'Kask'},{n:'Oakley'},{n:'100%'},{n:'Fizik'},{n:'Sidi'},{n:'Shimano'},
+];
+const BRAND_QUICK = ['Rapha','MAAP','Pas Normal Studios','Café du Cycliste','Castelli','Assos','Le Col','Craft','POC'];
+
+// ─── REKOMMENDATION (samma trösklar som index.html) ─────
+// Prototyp: duplicerad logik. I etapp 0 bryts den ut till en gemensam recommendKit().
+function recommendKeys(eff, rain, heavy, long) {
+  const r = [];
+  const add = (cat, key, ph) => r.push({ cat, key, ph });
+  if (eff >= 22)      { add('upper','jersey_short','ph-t-shirt'); add('lower','bib_shorts','ph-pants'); }
+  else if (eff >= 17) { add('upper','jersey_arm','ph-t-shirt'); add('lower','bib_shorts','ph-pants'); add('hands','gloves_light','ph-hand'); }
+  else if (eff >= 12) { add('upper','jersey_long','ph-t-shirt'); add('lower','bib_shorts_k','ph-pants'); add('hands','gloves_thin','ph-hand'); add('head','ear_warmer','ph-ear'); }
+  else if (eff >= 7)  { add('upper','jersey_thermo','ph-t-shirt'); add('lower','bibtights','ph-pants'); add('hands','gloves_winter','ph-hand'); add('head','ear_band','ph-ear'); }
+  else if (eff >= 2)  { add('upper','jacket_winter','ph-coat-hanger'); add('lower','bibtights_w','ph-pants'); add('hands','gloves_heavy','ph-hand'); add('head','hat','ph-beanie'); add('feet','shoe_cover','ph-sneaker'); }
+  else                { add('upper','jacket_double','ph-coat-hanger'); add('lower','bibtights_dbl','ph-pants'); add('hands','gloves_extreme','ph-hand'); add('head','balaclava','ph-beanie'); add('feet','shoe_winter','ph-sneaker'); }
+  if (rain) {
+    add('rainprot','rain_jacket','ph-cloud-rain'); add('eyes','glasses','ph-eyeglasses');
+    if (heavy) add('feet','waterproof','ph-sneaker');
+  }
+  if (long) add('pack','vest','ph-backpack');
+  return r;
+}
+
+// Recept: rekommendation → plaggtyper, alternativ i prioritetsordning
+const RECIPES = {
+  jersey_short:   [['jersey_ss']],
+  jersey_arm:     [['jersey_ss','arm_warmers'], ['jersey_ls']],
+  jersey_long:    [['jersey_ls'], ['jersey_ss','arm_warmers','base_layer'], ['jersey_thermal']],
+  jersey_thermo:  [['jersey_thermal','base_layer'], ['jersey_thermal','base_thermal'], ['jersey_ls','base_thermal','gilet'], ['jersey_ls','base_layer','gilet']],
+  jacket_winter:  [['winter_jacket','base_thermal'], ['winter_jacket','base_layer'], ['rain_jacket','jersey_thermal','base_thermal']],
+  jacket_double:  [['winter_jacket','jersey_thermal','base_thermal'], ['winter_jacket','jersey_ls','base_thermal'], ['winter_jacket','jersey_thermal','base_layer']],
+  bib_shorts:     [['bibs']],
+  bib_shorts_k:   [['bibs','knee_warmers'], ['bibs']],
+  bibtights:      [['bibtights'], ['bibs','leg_warmers'], ['bibtights_winter']],
+  bibtights_w:    [['bibtights_winter'], ['bibtights'], ['bibs','leg_warmers']],
+  bibtights_dbl:  [['bibtights_winter'], ['bibtights']],
+  gloves_light:   [['gloves_light'], ['gloves_thin']],
+  gloves_thin:    [['gloves_thin'], ['gloves_light'], ['gloves_winter']],
+  gloves_winter:  [['gloves_winter'], ['gloves_lobster']],
+  gloves_heavy:   [['gloves_winter'], ['gloves_lobster']],
+  gloves_extreme: [['gloves_lobster'], ['gloves_winter']],
+  ear_warmer:     [['ear_warmer'], ['cap']],
+  ear_band:       [['ear_warmer'], ['beanie'], ['cap']],
+  hat:            [['beanie'], ['balaclava'], ['ear_warmer']],
+  balaclava:      [['balaclava','beanie'], ['balaclava'], ['beanie']],
+  shoe_cover:     [['shoe_covers','socks'], ['shoe_covers'], ['shoe_covers_wp']],
+  shoe_winter:    [['winter_shoes','shoe_covers'], ['winter_shoes'], ['shoe_covers','socks'], ['shoe_covers']],
+  rain_jacket:    [['rain_jacket'], ['gilet']],
+  waterproof:     [['shoe_covers_wp'], ['shoe_covers']],
+  glasses:        [['glasses']],
+  vest:           [['gilet'], ['rain_jacket']],
+};
+
+// ─── I18N ────────────────────────────────────────────────
+const T = {
+  sv: {
+    title: 'Garderob', proto: 'Prototyp',
+    tabWardrobe: 'Garderob', tabToday: 'Dagens kit',
+    doll: 'Klippdockan', clearDoll: 'Klä av',
+    dollEmptyW: 'Tryck på ett plagg för att prova det på dockan.',
+    dollToday: 'Dockan är klädd efter dagens rekommendation.',
+    wearing: 'På dockan:',
+    zones: { upper:'Överkropp', lower:'Underkropp', hands:'Händer', head:'Huvud', feet:'Fötter' },
+    types: {
+      base_layer:'Baslager', base_thermal:'Termobaslager', jersey_ss:'Kortärmad jersey', jersey_ls:'Långärmad jersey',
+      jersey_thermal:'Termojersey', arm_warmers:'Armvärmare', gilet:'Vindväst', winter_jacket:'Vinterjacka', rain_jacket:'Regnjacka',
+      bibs:'Bib shorts', bibtights:'Bibtights', bibtights_winter:'Vinter-bibtights', knee_warmers:'Knävärmare', leg_warmers:'Benvärmare',
+      gloves_light:'Lätta handskar', gloves_thin:'Tunna fingerhandskar', gloves_winter:'Vinterhandskar', gloves_lobster:'Lobstervantar',
+      cap:'Keps', balaclava:'Balaclava', ear_warmer:'Öronvärmare', beanie:'Mössa', helmet:'Hjälm', glasses:'Glasögon',
+      socks:'Strumpor', winter_shoes:'Vinterskor', shoe_covers:'Skoöverdrag', shoe_covers_wp:'Vattentäta skoöverdrag',
+    },
+    cats: { upper:'Överkropp', lower:'Underkropp', hands:'Händer', head:'Huvud', feet:'Fötter', rainprot:'Regnskydd', eyes:'Ögon', pack:'Packa med' },
+    kit: {
+      jersey_short:'Kortärmad jersey', jersey_arm:'Jersey + armvärmare', jersey_long:'Långärmad jersey', jersey_thermo:'Termojersey + baslager',
+      jacket_winter:'Vinterjacka + termolinne', jacket_double:'Dubbellagring + vindtät jacka', bib_shorts:'Bib shorts', bib_shorts_k:'Bib shorts + knävärmare',
+      bibtights:'Bibtights', bibtights_w:'Vinter-bibtights', bibtights_dbl:'Vinter-bibtights + underställ',
+      gloves_light:'Lätta fingerhandskar', gloves_thin:'Tunna handskar', gloves_winter:'Vinterhandskar', gloves_heavy:'Tjocka vinterhandskar', gloves_extreme:'Extremhandskar',
+      ear_warmer:'Öronvärmare', ear_band:'Öronvärmare / pannband', hat:'Mössa under hjälm', balaclava:'Balaclava + mössa',
+      shoe_cover:'Skoöverdrag + termosockor', shoe_winter:'Vintersko + skoöverdrag', rain_jacket:'Vattenavvisande jacka', waterproof:'Vattentäta skoöverdrag',
+      glasses:'Glasögon / visir', vest:'Vindväst i bakfickan',
+    },
+    add: 'Lägg till plagg', quick: 'Snabbstart', backup: 'Säkerhetskopia',
+    filterAll: 'Alla', filterOwned: 'Äger', filterWish: 'Önskas',
+    emptyH: 'Din garderob är tom.',
+    emptyP: 'Tryck på det du har — det tar en halv minut. Märke, modell och färg kan du lägga till sen. Kit/Advisor fungerar precis som vanligt utan garderob.',
+    emptyBtn: 'Tryck på det du har',
+    zoneEmpty: 'Inget här ännu.',
+    wishFlag: 'Önskas', favFlag: 'Förstaval',
+    edNew: 'Nytt plagg', edEdit: 'Redigera plagg',
+    fType: 'Typ', fBrand: 'Märke', fName: 'Modell / namn', fColor: 'Färg', fAccent: 'Detaljfärg',
+    fStatus: 'Status', owned: 'Äger', wish: 'Önskar', fav: 'Förstaval när dagens kit väljs',
+    brandPh: 'T.ex. Rapha', namePh: 'T.ex. Pro Team Jersey',
+    save: 'Spara', del: 'Ta bort', cancel: 'Avbryt', confirmDel: 'Ta bort plagget?',
+    qTitle: 'Tryck på det du har', qIntro: 'Varje tryck lägger till ett plagg. Detaljer (märke, färg) fyller du i sen genom att trycka på pennan.', qDone: 'Klar',
+    bkTitle: 'Säkerhetskopia', bkIntro: 'Garderoben sparas bara i den här webbläsaren. Spara länken nedan — öppnar du den på en annan enhet eller efter rensad webbläsare kan du återställa allt.', bkCopy: 'Kopiera länk', bkCopied: 'Kopierad ✓',
+    importQ: n => `Länken innehåller en garderob med ${n} plagg.`, importYes: 'Ersätt min garderob', importNo: 'Avbryt',
+    // Today
+    wxTitle: 'Väder', useGeo: 'Använd min position', geoLoading: 'Hämtar väder…', geoErr: 'Kunde inte hämta väder — justera manuellt.',
+    effLabel: 'Upplevd temp', adjust: 'Justera', rainLbl: 'Nederbörd', dry: 'Torrt', rain: 'Regn', heavy: 'Skyfall', longLbl: 'Lång tur (> 3 h)',
+    assume: 'Antar 28 km/h, lugnt tempo och 2 h — som standardläget på startsidan.',
+    kitTitle: 'Ur din garderob',
+    tagOwned: 'Din', tagSwap: 'Ersätter', tagMissing: 'Saknas',
+    swapNote: g => `Istället för: ${g}`,
+    missNote: list => `Saknas i garderoben: ${list}`,
+    wishNote: list => `På önskelistan: ${list}`,
+    emptyToday: 'Lägg in plagg i garderoben så väljer vi ur den. Utan garderob visas samma rekommendation som på startsidan.',
+    wxLine: (t,w,h) => `${t}°C · vind ${w} km/h · fukt ${h} %`,
+  },
+  en: {
+    title: 'Wardrobe', proto: 'Prototype',
+    tabWardrobe: 'Wardrobe', tabToday: "Today's kit",
+    doll: 'Paper doll', clearDoll: 'Undress',
+    dollEmptyW: 'Tap a garment to try it on the doll.',
+    dollToday: "The doll is dressed from today's recommendation.",
+    wearing: 'Wearing:',
+    zones: { upper:'Upper body', lower:'Lower body', hands:'Hands', head:'Head', feet:'Feet' },
+    types: {
+      base_layer:'Base layer', base_thermal:'Thermal base layer', jersey_ss:'Short-sleeve jersey', jersey_ls:'Long-sleeve jersey',
+      jersey_thermal:'Thermal jersey', arm_warmers:'Arm warmers', gilet:'Gilet', winter_jacket:'Winter jacket', rain_jacket:'Rain jacket',
+      bibs:'Bib shorts', bibtights:'Bib tights', bibtights_winter:'Winter bib tights', knee_warmers:'Knee warmers', leg_warmers:'Leg warmers',
+      gloves_light:'Light gloves', gloves_thin:'Thin full-finger gloves', gloves_winter:'Winter gloves', gloves_lobster:'Lobster mitts',
+      cap:'Cycling cap', balaclava:'Balaclava', ear_warmer:'Ear warmer', beanie:'Beanie', helmet:'Helmet', glasses:'Glasses',
+      socks:'Socks', winter_shoes:'Winter shoes', shoe_covers:'Overshoes', shoe_covers_wp:'Waterproof overshoes',
+    },
+    cats: { upper:'Upper body', lower:'Lower body', hands:'Hands', head:'Head', feet:'Feet', rainprot:'Rain protection', eyes:'Eyes', pack:'Pack' },
+    kit: {
+      jersey_short:'Short-sleeve jersey', jersey_arm:'Jersey + arm warmers', jersey_long:'Long-sleeve jersey', jersey_thermo:'Thermal jersey + base layer',
+      jacket_winter:'Winter jacket + thermal base', jacket_double:'Double layer + windproof jacket', bib_shorts:'Bib shorts', bib_shorts_k:'Bib shorts + knee warmers',
+      bibtights:'Bib tights', bibtights_w:'Winter bib tights', bibtights_dbl:'Winter bib tights + thermal layer',
+      gloves_light:'Light full-finger gloves', gloves_thin:'Thin gloves', gloves_winter:'Winter gloves', gloves_heavy:'Heavy winter gloves', gloves_extreme:'Extreme gloves',
+      ear_warmer:'Ear warmers', ear_band:'Ear warmers / headband', hat:'Cap under helmet', balaclava:'Balaclava + cap',
+      shoe_cover:'Shoe covers + thermal socks', shoe_winter:'Winter shoes + covers', rain_jacket:'Water-resistant jacket', waterproof:'Waterproof shoe covers',
+      glasses:'Glasses / visor', vest:'Wind vest in back pocket',
+    },
+    add: 'Add garment', quick: 'Quick start', backup: 'Backup',
+    filterAll: 'All', filterOwned: 'Owned', filterWish: 'Wishlist',
+    emptyH: 'Your wardrobe is empty.',
+    emptyP: 'Tap what you own — it takes half a minute. Brand, model and colour can come later. Kit/Advisor works exactly as usual without a wardrobe.',
+    emptyBtn: 'Tap what you own',
+    zoneEmpty: 'Nothing here yet.',
+    wishFlag: 'Wishlist', favFlag: 'First pick',
+    edNew: 'New garment', edEdit: 'Edit garment',
+    fType: 'Type', fBrand: 'Brand', fName: 'Model / name', fColor: 'Colour', fAccent: 'Detail colour',
+    fStatus: 'Status', owned: 'Owned', wish: 'Wishlist', fav: "First pick for today's kit",
+    brandPh: 'e.g. Rapha', namePh: 'e.g. Pro Team Jersey',
+    save: 'Save', del: 'Delete', cancel: 'Cancel', confirmDel: 'Delete this garment?',
+    qTitle: 'Tap what you own', qIntro: 'Each tap adds one garment. Fill in details (brand, colour) later with the pencil.', qDone: 'Done',
+    bkTitle: 'Backup', bkIntro: 'Your wardrobe is only stored in this browser. Save the link below — open it on another device or after clearing your browser to restore everything.', bkCopy: 'Copy link', bkCopied: 'Copied ✓',
+    importQ: n => `This link contains a wardrobe with ${n} garments.`, importYes: 'Replace my wardrobe', importNo: 'Cancel',
+    wxTitle: 'Weather', useGeo: 'Use my location', geoLoading: 'Fetching weather…', geoErr: "Couldn't fetch weather — adjust manually.",
+    effLabel: 'Feels like', adjust: 'Adjust', rainLbl: 'Precipitation', dry: 'Dry', rain: 'Rain', heavy: 'Downpour', longLbl: 'Long ride (> 3 h)',
+    assume: 'Assumes 28 km/h, easy pace and 2 h — the same as the default on the main page.',
+    kitTitle: 'From your wardrobe',
+    tagOwned: 'Yours', tagSwap: 'Swap', tagMissing: 'Missing',
+    swapNote: g => `Instead of: ${g}`,
+    missNote: list => `Missing from wardrobe: ${list}`,
+    wishNote: list => `On your wishlist: ${list}`,
+    emptyToday: "Add garments to your wardrobe and we'll pick from it. Without a wardrobe you get the same recommendation as on the main page.",
+    wxLine: (t,w,h) => `${t}°C · wind ${w} km/h · humidity ${h}%`,
+  },
+};
+
+// ─── STATE ───────────────────────────────────────────────
+const S = {
+  lang: 'en',
+  tab: 'wardrobe',
+  filter: 'all',
+  items: [],
+  tryOn: {},            // slot → item id
+  eff: 12, rain: 'dry', long: false,
+  wxText: '',
+  thermo: 'normal',
+};
+const t = k => T[S.lang][k];
+const tType = k => T[S.lang].types[k] || k;
+
+function uid() { return Math.random().toString(36).slice(2, 9); }
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function load() {
+  try {
+    const raw = localStorage.getItem('ka_wardrobe');
+    if (raw) { const d = JSON.parse(raw); if (d && Array.isArray(d.items)) S.items = d.items.filter(i => GARMENTS[i.type]); }
+  } catch(e) {}
+  try { const l = localStorage.getItem('ka_w_lang'); if (l === 'sv' || l === 'en') S.lang = l; } catch(e) {}
+  try { const th = localStorage.getItem('ka_thermo'); if (th) S.thermo = th; } catch(e) {}
+}
+function save() {
+  try { localStorage.setItem('ka_wardrobe', JSON.stringify({ v:1, items:S.items })); } catch(e) {}
+}
+
+function brandShort(name) {
+  if (!name) return '';
+  const b = BRANDS.find(x => x.n.toLowerCase() === name.trim().toLowerCase());
+  const s = b ? (b.s || b.n) : name.trim();
+  return s.length > 9 ? s.split(/\s+/).map(w => w[0]).join('') : s;
+}
+function itemLabel(it) {
+  if (it.name) return [it.brand, it.name].filter(Boolean).join(' ');
+  return it.brand ? `${it.brand} ${tType(it.type).toLowerCase()}` : tType(it.type);
+}
+
+// ─── FÄRG ────────────────────────────────────────────────
+function hexRgb(h) { h = h.replace('#',''); if (h.length === 3) h = h.split('').map(c => c+c).join(''); const n = parseInt(h, 16); return [(n>>16)&255, (n>>8)&255, n&255]; }
+function shade(h, a) { const [r,g,b] = hexRgb(h); const f = v => Math.max(0, Math.min(255, Math.round(a < 0 ? v*(1+a) : v + (255-v)*a))); return '#' + [f(r),f(g),f(b)].map(v => v.toString(16).padStart(2,'0')).join(''); }
+function lum(h) { const [r,g,b] = hexRgb(h); return (0.299*r + 0.587*g + 0.114*b) / 255; }
+function ink(h) { return lum(h) > 0.6 ? '#111111' : '#F7F7F5'; }
+
+// ═══════════════════════════════════════════════════════════
+//  KLIPPDOCKAN — SVG, viewBox 0 0 200 400, sedd framifrån
+// ═══════════════════════════════════════════════════════════
+const f1 = n => Math.round(n * 10) / 10;
+const ARM = { L: { s:[63,80], w:[46,186] }, R: { s:[137,80], w:[154,186] } };
+const LEG = { L: { s:[85,188], w:[84,352] }, R: { s:[115,188], w:[116,352] } };
+
+function limbPt(L, t) { return [L.s[0] + (L.w[0]-L.s[0])*t, L.s[1] + (L.w[1]-L.s[1])*t]; }
+function limbSeg(L, t0, t1, hw0, hw1, ex) {
+  const dx = L.w[0]-L.s[0], dy = L.w[1]-L.s[1], len = Math.hypot(dx, dy);
+  const nx = -dy/len, ny = dx/len;
+  const hw = t => hw0 + (hw1-hw0)*t + ex;
+  const p0 = limbPt(L, t0), p1 = limbPt(L, t1), a = hw(t0), b = hw(t1);
+  return `M${f1(p0[0]+nx*a)},${f1(p0[1]+ny*a)} L${f1(p1[0]+nx*b)},${f1(p1[1]+ny*b)} L${f1(p1[0]-nx*b)},${f1(p1[1]-ny*b)} L${f1(p0[0]-nx*a)},${f1(p0[1]-ny*a)} Z`;
+}
+const armSeg = (side, t0, t1, ex=0) => limbSeg(ARM[side], t0, t1, 8, 5.2, ex);
+const legSeg = (side, t0, t1, ex=0) => limbSeg(LEG[side], t0, t1, 13, 7, ex);
+function shoulderCap(side, ex=0) { const [x,y] = ARM[side].s; return `M${x-8-ex},${y} a${8+ex},${8+ex} 0 1,0 ${2*(8+ex)},0 a${8+ex},${8+ex} 0 1,0 ${-2*(8+ex)},0 Z`; }
+function handEllipse(side, rx, ry) {
+  const L = ARM[side], [cx, cy] = limbPt(L, 1.07);
+  const ang = Math.atan2(L.w[1]-L.s[1], L.w[0]-L.s[0]) * 180/Math.PI - 90;
+  return { cx:f1(cx), cy:f1(cy), rx, ry, rot:f1(ang) };
+}
+function torsoPath(hem, e) {
+  return `M${f1(80-e*0.3)},${f1(66-e*0.5)} Q100,${f1(74+e*0.2)} ${f1(120+e*0.3)},${f1(66-e*0.5)} L${136+e},${f1(72-e*0.4)} Q${142+e},76 ${141+e},84 L${134+e},128 Q${131+e},160 ${132+e},${hem} L${68-e},${hem} Q${69-e},160 ${66-e},128 L${59-e},84 Q${58-e},76 ${64-e},${f1(72-e*0.4)} Z`;
+}
+const COLLAR = e => `M86,56 L114,56 L${f1(120+e*0.3)},67 Q100,76 ${f1(80-e*0.3)},67 Z`;
+function shoePath(side, e) {
+  const L = `M${76-e},${346-e} L${92+e},${346-e} L${94+e},362 Q${95+e},${369+e} 88,${369+e} L${71-e},${369+e} Q${65-e},${369+e} ${68-e},361 Z`;
+  if (side === 'L') return L;
+  return L.replace(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/g, (m, x, y) => `${f1(200 - parseFloat(x))},${y}`);
+}
+
+const SKIN = '#E6E2DA', SKIN_S = '#CFCAC0';
+
+function mannequin(faint) {
+  const fill = faint ? '#EEECE7' : SKIN, stroke = faint ? 'none' : SKIN_S;
+  const a = `fill="${fill}" stroke="${stroke}" stroke-width="0.75" stroke-linejoin="round"`;
+  let s = '';
+  if (!faint) s += `<ellipse cx="100" cy="372" rx="46" ry="4" fill="#111" opacity="0.05"/>`;
+  s += `<path ${a} d="${legSeg('L',0,1)}"/><path ${a} d="${legSeg('R',0,1)}"/>`;
+  s += `<path ${a} d="M68,178 L132,178 L131,200 Q100,212 69,200 Z"/>`;
+  for (const sd of ['L','R']) {
+    s += `<path ${a} d="${armSeg(sd,0,1)}"/><path ${a} d="${shoulderCap(sd)}"/>`;
+    const h = handEllipse(sd, 5.5, 8);
+    s += `<ellipse ${a} cx="${h.cx}" cy="${h.cy}" rx="${h.rx}" ry="${h.ry}" transform="rotate(${h.rot} ${h.cx} ${h.cy})"/>`;
+  }
+  s += `<rect ${a} x="93" y="52" width="14" height="18" rx="3"/>`;
+  s += `<path ${a} d="${torsoPath(186, 0)}"/>`;
+  s += `<circle ${a} cx="100" cy="42" r="16"/>`;
+  return s;
+}
+
+// Stil per ritläge: solid (ägd), wish (önskad, streckad och halvgenomskinlig), ghost (saknas)
+function sty(c, mode) {
+  // Heltäckande fyllningar (ingen transparens) så att överlapp vid axlar inte syns
+  if (mode === 'ghost') return `fill="#F1F0EC" stroke="#9A9A96" stroke-width="0.9" stroke-dasharray="2.5 2" stroke-linejoin="round"`;
+  const s = shade(c, lum(c) > 0.85 ? -0.22 : -0.32);
+  if (mode === 'wish') return `fill="${shade(c, 0.55)}" stroke="${s}" stroke-width="0.9" stroke-dasharray="2.5 2" stroke-linejoin="round"`;
+  return `fill="${c}" stroke="${s}" stroke-width="0.75" stroke-linejoin="round"`;
+}
+
+function wordmark(txt, x, y, c, mode, size=5, anchor='middle') {
+  if (!txt || mode === 'ghost') return '';
+  return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="ui-monospace,'SF Mono',monospace" font-size="${size}" letter-spacing="0.5" fill="${ink(c)}" opacity="${mode==='wish'?0.5:0.9}">${esc(txt.toUpperCase())}</text>`;
+}
+
+// Ritar ett plagg. e = { type, c1, c2, brand, mode }
+function drawGarment(e) {
+  const c = e.c1 || GARMENTS[e.type].def;
+  const c2 = e.c2 || null;
+  const m = e.mode || 'solid';
+  const A = sty(c, m), B = c2 ? sty(c2, m) : A;
+  const bs = brandShort(e.brand);
+  const P = (d, st=A) => `<path ${st} d="${d}"/>`;
+  let s = '';
+  const sleeves = (t1, ex, cuff) => {
+    for (const sd of ['L','R']) {
+      s += P(armSeg(sd, 0, t1, ex)) + P(shoulderCap(sd, ex));
+      if (cuff) s += P(armSeg(sd, t1 - 0.06, t1, ex + 0.3), B);
+    }
+  };
+  switch (e.type) {
+    case 'base_layer': case 'base_thermal':
+      sleeves(0.96, 0.3, false);
+      s += P(torsoPath(186, 0.4));
+      if (e.type === 'base_thermal') s += `<path d="M78,90 Q100,96 122,90 M76,120 Q100,126 124,120" fill="none" stroke="${shade(c,-0.2)}" stroke-width="0.5" opacity="0.6"/>`;
+      break;
+    case 'jersey_ss':
+      sleeves(0.3, 1.4, true);
+      s += P(torsoPath(190, 1.2));
+      s += `<line x1="100" y1="72" x2="100" y2="190" stroke="${shade(c,-0.35)}" stroke-width="0.6"/>`;
+      if (c2) s += P(`M${58.8},92 L${141.2},92 L${140.6},98 L${59.4},98 Z`, B);
+      s += wordmark(bs, 116, 88, c2 ? c : c, m);
+      break;
+    case 'jersey_ls': case 'jersey_thermal': {
+      const th = e.type === 'jersey_thermal';
+      sleeves(0.99, th ? 1.6 : 1.2, true);
+      s += P(torsoPath(190, th ? 1.6 : 1.2));
+      if (th) s += P(COLLAR(1.6), B);
+      s += `<line x1="100" y1="${th?56:72}" x2="100" y2="190" stroke="${shade(c,-0.35)}" stroke-width="0.6"/>`;
+      s += wordmark(bs, 116, 88, c, m);
+      break;
+    }
+    case 'arm_warmers':
+      for (const sd of ['L','R']) { s += P(armSeg(sd, 0.22, 0.98, 0.7)); if (c2) s += P(armSeg(sd, 0.22, 0.28, 0.9), B); }
+      break;
+    case 'gilet':
+      s += P(torsoPath(192, 2.4)) + P(COLLAR(2.4));
+      s += `<line x1="100" y1="56" x2="100" y2="192" stroke="${shade(c,-0.35)}" stroke-width="0.6"/>`;
+      if (c2) s += P(`M${57},108 L${143},108 L${142.7},111 L${57.3},111 Z`, B);
+      s += wordmark(bs, 116, 90, c, m);
+      break;
+    case 'winter_jacket': case 'rain_jacket': {
+      const rj = e.type === 'rain_jacket';
+      const ex = rj ? 2.6 : 3.4;
+      for (const sd of ['L','R']) { s += P(armSeg(sd, 0, 1, ex)) + P(shoulderCap(sd, ex)); if (c2) s += P(armSeg(sd, 0.94, 1, ex + 0.3), B); }
+      s += P(torsoPath(rj ? 198 : 196, ex)) + P(COLLAR(ex), c2 ? B : A);
+      s += `<line x1="100" y1="56" x2="100" y2="${rj?198:196}" stroke="${shade(c,-0.4)}" stroke-width="0.7"/>`;
+      if (!rj) s += `<path d="M64,110 Q100,116 136,110 M65,150 Q100,156 135,150" fill="none" stroke="${shade(c,-0.25)}" stroke-width="0.5" opacity="0.7"/>`;
+      s += wordmark(bs, 117, 90, c, m);
+      break;
+    }
+    case 'bibs':
+      for (const sd of ['L','R']) { s += P(legSeg(sd, 0, 0.36, 1)); s += P(legSeg(sd, 0.31, 0.36, 1.3), B); }
+      s += P('M84,68 L91,68 L94,176 L86,176 Z') + P('M116,68 L109,68 L106,176 L114,176 Z');
+      s += P('M66,166 L134,166 L133,202 Q100,214 67,202 Z');
+      s += wordmark(bs, 85, 226, c, m, 4.4);
+      break;
+    case 'bibtights': case 'bibtights_winter': {
+      const w = e.type === 'bibtights_winter';
+      for (const sd of ['L','R']) { s += P(legSeg(sd, 0, 0.97, w ? 1.3 : 0.9)); if (c2 || w) s += P(legSeg(sd, 0.9, 0.97, w ? 1.6 : 1.2), c2 ? B : sty(shade(c, 0.18), m)); }
+      s += P('M84,68 L91,68 L94,176 L86,176 Z') + P('M116,68 L109,68 L106,176 L114,176 Z');
+      s += P('M66,166 L134,166 L133,202 Q100,214 67,202 Z');
+      s += wordmark(bs, 85, 226, c, m, 4.4);
+      break;
+    }
+    case 'knee_warmers': case 'leg_warmers': {
+      const t1 = e.type === 'knee_warmers' ? 0.62 : 0.96;
+      for (const sd of ['L','R']) { s += P(legSeg(sd, 0.28, t1, 1.4)); if (c2) s += P(legSeg(sd, 0.28, 0.33, 1.6), B); }
+      break;
+    }
+    case 'gloves_light': case 'gloves_thin': case 'gloves_winter': case 'gloves_lobster': {
+      const big = { gloves_light:[6.2,8.6,0], gloves_thin:[6.3,8.8,0.05], gloves_winter:[7.4,9.8,0.1], gloves_lobster:[8.6,10.6,0.12] }[e.type];
+      for (const sd of ['L','R']) {
+        if (big[2]) s += P(armSeg(sd, 1 - big[2], 1.02, 1.2 + big[2]*8), c2 ? B : A);
+        const h = handEllipse(sd, big[0], big[1]);
+        s += `<ellipse ${A} cx="${h.cx}" cy="${h.cy}" rx="${h.rx}" ry="${h.ry}" transform="rotate(${h.rot} ${h.cx} ${h.cy})"/>`;
+        if (e.type === 'gloves_lobster') s += `<line x1="${h.cx}" y1="${f1(h.cy - 1)}" x2="${h.cx}" y2="${f1(h.cy + h.ry)}" transform="rotate(${h.rot} ${h.cx} ${h.cy})" stroke="${shade(c,-0.4)}" stroke-width="0.7"/>`;
+        if (e.type === 'gloves_light' && c2) s += `<ellipse ${B} cx="${h.cx}" cy="${f1(h.cy-3)}" rx="${h.rx}" ry="2" transform="rotate(${h.rot} ${h.cx} ${h.cy})"/>`;
+      }
+      break;
+    }
+    case 'cap':
+      s += P('M84,35 Q100,27 116,35 L116,40 Q100,34 84,40 Z') + `<ellipse ${c2 ? B : A} cx="100" cy="38.5" rx="11" ry="2.6"/>`;
+      break;
+    case 'ear_warmer':
+      s += P('M82,35 Q100,29 118,35 L119,48 Q100,43 81,48 Z');
+      if (c2) s += P('M82,40 Q100,34.5 118,40 L118.3,42 Q100,37 81.7,42 Z', B);
+      break;
+    case 'beanie':
+      s += P('M82,46 Q80,20 100,20 Q120,20 118,46 Q100,41 82,46 Z');
+      s += P('M82,46 Q100,41 118,46 L118.5,40 Q100,35 81.5,40 Z', c2 ? B : sty(shade(c,-0.1), m));
+      break;
+    case 'balaclava':
+      s += P('M89,48 L111,48 L112,72 L88,72 Z') + `<circle ${A} cx="100" cy="42" r="17.4"/>`;
+      if (m !== 'ghost') s += `<ellipse cx="100" cy="45" rx="8.4" ry="7.2" fill="${SKIN}" stroke="${shade(c,-0.3)}" stroke-width="0.6"/>`;
+      else s += `<ellipse cx="100" cy="45" rx="8.4" ry="7.2" fill="none" stroke="#9A9A96" stroke-width="0.9" stroke-dasharray="2.5 2"/>`;
+      break;
+    case 'helmet':
+      s += P('M80,37 Q79,17 100,15.5 Q121,17 120,37 Q111,32.5 100,32.5 Q89,32.5 80,37 Z');
+      s += `<path d="M91,20 L88.5,31 M100,17.5 L100,30.5 M109,20 L111.5,31" fill="none" stroke="${c2 || shade(c,-0.35)}" stroke-width="${c2 ? 1.6 : 0.8}" stroke-linecap="round"/>`;
+      s += wordmark(bs, 100, 28.5, c, m, 3.4);
+      break;
+    case 'glasses':
+      s += `<rect ${A} x="85.5" y="37.5" width="29" height="8" rx="4"/>`;
+      if (m !== 'ghost') s += `<rect x="87" y="38.8" width="26" height="5.4" rx="2.7" fill="${c2 || '#3a3a38'}" opacity="0.85"/>`;
+      break;
+    case 'socks':
+      for (const sd of ['L','R']) { s += P(legSeg(sd, 0.83, 1.0, 0.8)); if (c2) s += P(legSeg(sd, 0.83, 0.86, 1), B); }
+      break;
+    case 'winter_shoes':
+      for (const sd of ['L','R']) s += P(legSeg(sd, 0.9, 1.0, 1.2)) + P(shoePath(sd, 1));
+      if (c2) for (const sd of ['L','R']) s += P(legSeg(sd, 0.9, 0.93, 1.4), B);
+      break;
+    case 'shoe_covers': case 'shoe_covers_wp':
+      for (const sd of ['L','R']) {
+        s += P(legSeg(sd, 0.84, 1.0, 1.8)) + P(shoePath(sd, 1.8));
+        if (c2) s += P(legSeg(sd, 0.84, 0.87, 2), B);
+        if (e.type === 'shoe_covers_wp' && m !== 'ghost') { const x = sd === 'L' ? 80 : 120; s += `<line x1="${x}" y1="330" x2="${x}" y2="366" stroke="${shade(c, 0.35)}" stroke-width="0.6" opacity="0.8"/>`; }
+      }
+      break;
+  }
+  return s;
+}
+
+function baseShoes() {
+  return ['L','R'].map(sd => `<path fill="#2E2E2C" stroke="#1a1a19" stroke-width="0.6" stroke-linejoin="round" d="${shoePath(sd, 0)}"/>`).join('');
+}
+
+// entries: [{type,c1,c2,brand,mode}]
+function dollSVG(entries, { faint=false } = {}) {
+  const list = entries.slice().sort((a, b) => GARMENTS[a.type].z - GARMENTS[b.type].z);
+  const hasWinterShoes = list.some(e => e.type === 'winter_shoes' && e.mode !== 'ghost');
+  let s = mannequin(faint);
+  let shoesDone = faint;  // miniatyrer ritar inga standardskor
+  for (const e of list) {
+    if (!shoesDone && GARMENTS[e.type].z > 22) { if (!hasWinterShoes) s += baseShoes(); shoesDone = true; }
+    s += drawGarment(e);
+  }
+  if (!shoesDone && !hasWinterShoes) s += baseShoes();
+  return s;
+}
+
+function thumbSVG(type, c1, c2, brand, mode='solid') {
+  const vb = THUMB_VB[GARMENTS[type].zone];
+  return `<svg viewBox="${vb}" aria-hidden="true">${dollSVG([{ type, c1, c2, brand, mode }], { faint:true })}</svg>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RESOLVER — rekommendation + garderob → plagg
+// ═══════════════════════════════════════════════════════════
+function byType(wish) {
+  const m = {};
+  for (const it of S.items) {
+    if (!!it.wish !== wish) continue;
+    (m[it.type] ||= []).push(it);
+  }
+  for (const k in m) m[k].sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0));
+  return m;
+}
+
+function resolveRec(key, owned, wished) {
+  const alts = RECIPES[key] || [];
+  for (let i = 0; i < alts.length; i++) {
+    if (alts[i].every(ty => owned[ty])) {
+      return { status: i === 0 ? 'owned' : 'swap', parts: alts[i].map(ty => ({ type: ty, item: owned[ty][0] })) };
+    }
+  }
+  // Inget alternativ komplett: välj det där man äger flest delar (lika → tidigast i listan)
+  let prim = alts[0] || [], best = -1;
+  for (const a of alts) { const n = a.filter(ty => owned[ty]).length; if (n > best) { best = n; prim = a; } }
+  return {
+    status: 'missing',
+    parts: prim.map(ty => owned[ty] ? { type: ty, item: owned[ty][0] }
+                         : wished[ty] ? { type: ty, item: wished[ty][0], wish: true }
+                         : { type: ty, item: null }),
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════
+function renderStatic() {
+  document.documentElement.lang = S.lang;
+  document.title = `${t('title')} — Kit/Advisor`;
+  document.getElementById('hTitle').textContent = t('title');
+  document.getElementById('protoPill').textContent = t('proto');
+  document.getElementById('lblDoll').textContent = t('doll');
+  document.getElementById('clearDollBtn').textContent = t('clearDoll');
+  document.querySelectorAll('#langTog button').forEach(b => b.classList.toggle('active', b.dataset.v === S.lang));
+  const owned = S.items.filter(i => !i.wish).length;
+  document.getElementById('tabWardrobe').innerHTML = `<i class="ph ph-coat-hanger"></i>${t('tabWardrobe')} <span class="count">${owned}</span>`;
+  document.getElementById('tabToday').innerHTML = `<i class="ph ph-cloud-sun"></i>${t('tabToday')}`;
+  document.getElementById('tabWardrobe').classList.toggle('active', S.tab === 'wardrobe');
+  document.getElementById('tabToday').classList.toggle('active', S.tab === 'today');
+  document.getElementById('viewWardrobe').style.display = S.tab === 'wardrobe' ? '' : 'none';
+  document.getElementById('viewToday').style.display = S.tab === 'today' ? '' : 'none';
+  document.getElementById('clearDollBtn').style.visibility = (S.tab === 'wardrobe' && Object.keys(S.tryOn).length) ? 'visible' : 'hidden';
+}
+
+function renderAll() {
+  renderStatic();
+  if (S.tab === 'wardrobe') renderWardrobe(); else renderToday();
+  renderDoll();
+}
+
+function renderDoll() {
+  const svg = document.getElementById('doll');
+  const cap = document.getElementById('dollCaption');
+  if (S.tab === 'wardrobe') {
+    const worn = Object.values(S.tryOn).map(id => S.items.find(i => i.id === id)).filter(Boolean);
+    svg.innerHTML = dollSVG(worn.map(it => ({ type: it.type, c1: it.c1, c2: it.c2, brand: it.brand, mode: it.wish ? 'wish' : 'solid' })));
+    cap.innerHTML = worn.length
+      ? `${t('wearing')} ${worn.sort((a,b) => GARMENTS[b.type].z - GARMENTS[a.type].z).map(i => `<b>${esc(itemLabel(i))}</b>`).join(' · ')}`
+      : t('dollEmptyW');
+  } else {
+    const { entries } = todayResolved();
+    svg.innerHTML = dollSVG(entries);
+    cap.textContent = t('dollToday');
+  }
+}
+
+// ─── Garderob ────────────────────────────────────────────
+function renderWardrobe() {
+  const v = document.getElementById('viewWardrobe');
+  let h = '';
+  if (!S.items.length) {
+    h += `<div class="empty"><h2>${t('emptyH')}</h2><p>${t('emptyP')}</p>
+      <button class="btn primary" onclick="openQuick()"><i class="ph ph-hand-tap"></i>${t('emptyBtn')}</button></div>`;
+  }
+  h += `<div class="toolbar">
+    <div class="tog-grp" id="filterTog">
+      ${['all','owned','wish'].map(f => `<button data-v="${f}" class="${S.filter===f?'active':''}" onclick="setFilter('${f}')">${t(f==='all'?'filterAll':f==='owned'?'filterOwned':'filterWish')}</button>`).join('')}
+    </div>
+    <div class="spacer"></div>
+    <button class="btn" onclick="openQuick()"><i class="ph ph-hand-tap"></i>${t('quick')}</button>
+    <button class="btn" onclick="openBackup()"><i class="ph ph-link"></i>${t('backup')}</button>
+    <button class="btn primary" onclick="openEditor()"><i class="ph ph-plus"></i>${t('add')}</button>
+  </div>`;
+  const shown = S.items.filter(i => S.filter === 'all' || (S.filter === 'wish' ? i.wish : !i.wish));
+  const onIds = new Set(Object.values(S.tryOn));
+  for (const z of ZONES) {
+    const zi = shown.filter(i => GARMENTS[i.type].zone === z)
+      .sort((a, b) => TYPE_ORDER.indexOf(a.type) - TYPE_ORDER.indexOf(b.type));
+    if (!zi.length && S.items.length === 0) continue;
+    h += `<div class="zone"><div class="zone-hd"><span class="zone-title">${t('zones')[z]}</span><span class="zone-count">${zi.length || ''}</span></div><div class="cards">`;
+    for (const it of zi) {
+      h += `<div class="card${it.wish ? ' wish' : ''}${onIds.has(it.id) ? ' on' : ''}" role="button" tabindex="0" onclick="toggleTry('${it.id}')" onkeydown="if(event.key==='Enter')toggleTry('${it.id}')">
+        <div class="card-flags">${it.wish ? `<span class="flag">${t('wishFlag')}</span>` : ''}${it.fav ? `<span class="flag fav">★</span>` : ''}</div>
+        <button class="card-edit" onclick="event.stopPropagation();openEditor('${it.id}')" aria-label="Edit"><i class="ph ph-pencil-simple"></i></button>
+        <div class="card-thumb">${thumbSVG(it.type, it.c1, it.c2, it.brand, it.wish ? 'wish' : 'solid')}</div>
+        <div class="card-body">
+          <div class="card-brand">${esc(it.brand || '')}</div>
+          <div class="card-name">${esc(it.name || tType(it.type))}</div>
+          ${it.name ? `<div class="card-type">${esc(tType(it.type))}</div>` : ''}
+        </div></div>`;
+    }
+    h += `<button class="card card-add" onclick="openEditor(null,'${z}')"><i class="ph ph-plus"></i>${t('add')}</button>`;
+    h += `</div></div>`;
+  }
+  v.innerHTML = h;
+}
+
+function setFilter(f) { S.filter = f; renderWardrobe(); }
+
+function toggleTry(id) {
+  const it = S.items.find(i => i.id === id); if (!it) return;
+  const slot = GARMENTS[it.type].slot;
+  if (S.tryOn[slot] === id) delete S.tryOn[slot]; else S.tryOn[slot] = id;
+  renderAll();
+}
+function clearTryOn() { S.tryOn = {}; renderAll(); }
+
+// ─── Dagens kit ──────────────────────────────────────────
+function todayResolved() {
+  const owned = byType(false), wished = byType(true);
+  const recs = recommendKeys(S.eff, S.rain !== 'dry', S.rain === 'heavy', S.long);
+  const rows = recs.map(r => ({ ...r, res: resolveRec(r.key, owned, wished) }));
+  const seen = new Set(), entries = [];
+  for (const r of rows) for (const p of r.res.parts) {
+    if (seen.has(p.type)) continue; seen.add(p.type);
+    entries.push(p.item
+      ? { type: p.type, c1: p.item.c1, c2: p.item.c2, brand: p.item.brand, mode: p.wish ? 'wish' : 'solid' }
+      : { type: p.type, mode: 'ghost' });
+  }
+  // Hjälmen följer alltid med om den finns
+  if (owned.helmet && !seen.has('helmet')) { const it = owned.helmet[0]; entries.push({ type:'helmet', c1:it.c1, c2:it.c2, brand:it.brand, mode:'solid' }); }
+  return { rows, entries };
+}
+
+function kitRowsHTML() {
+  const { rows } = todayResolved();
+  const hasAny = S.items.some(i => !i.wish);
+  const L = T[S.lang];
+  let kit = hasAny ? '' : `<div class="callout">${t('emptyToday')}</div>`;
+  for (const r of rows) {
+    const generic = L.kit[r.key] || r.key;
+    const { status, parts } = r.res;
+    let name, tag = '', note = '';
+    if (!hasAny) {
+      name = esc(generic);
+    } else if (status === 'owned' || status === 'swap') {
+      name = parts.map(p => `<span class="own">${esc(itemLabel(p.item))}</span>`).join(' + ');
+      tag = status === 'owned' ? `<span class="kit-tag ok">${t('tagOwned')}</span>` : `<span class="kit-tag swap">${t('tagSwap')}</span>`;
+      if (status === 'swap') note = L.swapNote(esc(generic));
+    } else {
+      const have = parts.filter(p => p.item && !p.wish);
+      name = have.length ? have.map(p => `<span class="own">${esc(itemLabel(p.item))}</span>`).join(' + ') + ` <span style="color:var(--k-mid);font-weight:400">+ …</span>` : esc(generic);
+      tag = `<span class="kit-tag miss">${t('tagMissing')}</span>`;
+      const miss = parts.filter(p => !p.item || p.wish).map(p => tType(p.type).toLowerCase());
+      const wishes = parts.filter(p => p.wish).map(p => esc(itemLabel(p.item)));
+      note = L.missNote(miss.join(', ')) + (wishes.length ? ` · ${L.wishNote(wishes.join(', '))}` : '');
+    }
+    kit += `<div class="kit-row"><i class="ph ${r.ph} kit-ph"></i><div><div class="kit-cat">${L.cats[r.cat]}</div><div class="kit-name">${name}${tag}</div>${note ? `<div class="kit-note">${note}</div>` : ''}</div></div>`;
+  }
+  return kit;
+}
+
+const effTxt = () => (S.eff > 0 ? '+' : '') + S.eff.toFixed(1) + '°';
+
+function renderToday() {
+  document.getElementById('viewToday').innerHTML = `<div class="today-grid">
+    <div class="box">
+      <div class="sec-label">${t('wxTitle')}</div>
+      <button class="btn" onclick="useGeo()"><i class="ph ph-crosshair"></i>${t('useGeo')}</button>
+      <div class="wx-line" id="wxLine">${esc(S.wxText)}</div>
+      <div class="eff-card"><div class="eff-label">${t('effLabel')}</div><div class="eff-number" id="effNum">${effTxt()}</div></div>
+      <div class="row-ctl"><span>${t('adjust')}</span></div>
+      <input type="range" min="-12" max="30" step="0.5" value="${S.eff}" aria-label="${t('effLabel')}" oninput="S.eff=parseFloat(this.value);refreshToday()">
+      <div class="row-ctl"><span>${t('rainLbl')}</span>
+        <div class="tog-grp">${['dry','rain','heavy'].map(k => `<button class="${S.rain===k?'active':''}" onclick="S.rain='${k}';renderAll()">${t(k)}</button>`).join('')}</div>
+      </div>
+      <div class="row-ctl"><label class="chk"><input type="checkbox" ${S.long?'checked':''} onchange="S.long=this.checked;renderAll()">${t('longLbl')}</label></div>
+      <div class="assume">${t('assume')}</div>
+    </div>
+    <div class="box">
+      <div class="sec-label">${t('kitTitle')}</div>
+      <div id="kitRows">${kitRowsHTML()}</div>
+    </div>
+  </div>`;
+}
+
+// Uppdaterar bara kit-listan och dockan — slidern ritas inte om (behåller draget)
+function refreshToday() {
+  document.getElementById('effNum').textContent = effTxt();
+  document.getElementById('kitRows').innerHTML = kitRowsHTML();
+  renderDoll();
+}
+
+// ─── Väder (samma formel som index.html) ─────────────────
+function windChill(T, V) {
+  if (V < 4.8) return T;
+  const wc = 13.12 + 0.6215*T - 11.37*Math.pow(V,0.16) + 0.3965*T*Math.pow(V,0.16);
+  if (T <= 10) return wc;
+  if (T >= 33) return T;
+  return T + (wc - T) * ((33 - T) / 23);
+}
+function useGeo() {
+  const line = document.getElementById('wxLine');
+  if (!navigator.geolocation) { line.textContent = t('geoErr'); return; }
+  line.textContent = t('geoLoading');
+  navigator.geolocation.getCurrentPosition(async pos => {
+    try {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&current=temperature_2m,wind_speed_10m,precipitation,relative_humidity_2m,weather_code&wind_speed_unit=kmh&timezone=auto`;
+      const r = await fetch(url); if (!r.ok) throw new Error('API');
+      const c = (await r.json()).current;
+      const wc = windChill(c.temperature_2m, c.wind_speed_10m + 28);
+      const thermo = { cold:-2, normal:0, warm:2 }[S.thermo] || 0;
+      const humP = c.relative_humidity_2m > 85 ? -2 : 0;
+      S.eff = Math.max(-12, Math.min(30, Math.round((wc + 4 + (S.long ? -2 : -1) + humP + thermo) * 2) / 2));
+      S.rain = (c.weather_code >= 65 || c.precipitation > 2) ? 'heavy' : (c.precipitation > 0.3 || c.weather_code >= 51) ? 'rain' : 'dry';
+      S.wxText = T[S.lang].wxLine(c.temperature_2m.toFixed(1), Math.round(c.wind_speed_10m), Math.round(c.relative_humidity_2m));
+      renderAll();
+    } catch(e) { line.textContent = t('geoErr'); }
+  }, () => { line.textContent = t('geoErr'); }, { timeout: 10000 });
+}
+
+function setTab(tab) { S.tab = tab; renderAll(); window.scrollTo({ top: 0 }); }
+
+// ─── Editor ──────────────────────────────────────────────
+let ED = null;
+function openEditor(id = null, zone = null) {
+  const it = id ? S.items.find(i => i.id === id) : null;
+  const type = it ? it.type : TYPE_ORDER.find(k => !zone || GARMENTS[k].zone === zone);
+  ED = it ? { ...it } : { id: null, type, brand: '', name: '', c1: GARMENTS[type].def, c2: '', wish: S.filter === 'wish', fav: false };
+  document.getElementById('edTitle').textContent = it ? t('edEdit') : t('edNew');
+  renderEditor();
+  document.getElementById('edModal').classList.add('open');
+}
+function closeEditor() { document.getElementById('edModal').classList.remove('open'); ED = null; }
+
+function renderEditor() {
+  const body = document.getElementById('edBody');
+  const L = T[S.lang];
+  let types = '';
+  for (const z of ZONES) for (const k of TYPE_ORDER.filter(k => GARMENTS[k].zone === z))
+    types += `<button class="type-tile${ED.type===k?' sel':''}" onclick="edSet('type','${k}')">${thumbSVG(k, ED.type===k ? ED.c1 : null, null, null)}<span>${esc(L.types[k])}</span></button>`;
+  const sw = (field, allowNone) => {
+    let s = allowNone ? `<button class="sw none${!ED[field]?' sel':''}" onclick="edSet('${field}','')" aria-label="none"></button>` : '';
+    s += PALETTE.map(c => `<button class="sw${ED[field]===c?' sel':''}" style="background:${c}" onclick="edSet('${field}','${c}')" aria-label="${c}"></button>`).join('');
+    s += `<input type="color" class="sw-custom" value="${ED[field] || '#347962'}" onchange="edSet('${field}',this.value)" aria-label="custom">`;
+    return s;
+  };
+  body.innerHTML = `
+    <div class="ed-top">
+      <div class="ed-preview" id="edPrev">${thumbSVG(ED.type, ED.c1, ED.c2, ED.brand, ED.wish ? 'wish' : 'solid')}</div>
+      <div class="ed-fields">
+        <div class="f-row"><label>${t('fBrand')}</label><input type="text" list="brandList" value="${esc(ED.brand)}" placeholder="${t('brandPh')}" oninput="ED.brand=this.value;updPrev()" id="edBrand">
+          <div class="chips">${BRAND_QUICK.map(b => `<button class="chip" onclick="document.getElementById('edBrand').value='${esc(b)}';ED.brand='${esc(b)}';updPrev()">${esc(b)}</button>`).join('')}</div></div>
+        <div class="f-row"><label>${t('fName')}</label><input type="text" value="${esc(ED.name)}" placeholder="${t('namePh')}" oninput="ED.name=this.value"></div>
+      </div>
+    </div>
+    <datalist id="brandList">${BRANDS.map(b => `<option value="${esc(b.n)}">`).join('')}</datalist>
+    <div class="f-section f-row"><label>${t('fColor')}</label><div class="swatches">${sw('c1', false)}</div></div>
+    <div class="f-section f-row"><label>${t('fAccent')}</label><div class="swatches">${sw('c2', true)}</div></div>
+    <div class="f-section f-row"><label>${t('fStatus')}</label>
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+        <div class="tog-grp"><button class="${!ED.wish?'active':''}" onclick="edSet('wish',false)">${t('owned')}</button><button class="${ED.wish?'active':''}" onclick="edSet('wish',true)">${t('wish')}</button></div>
+        <label class="chk"><input type="checkbox" ${ED.fav?'checked':''} onchange="ED.fav=this.checked">${t('fav')}</label>
+      </div></div>
+    <div class="f-section f-row"><label>${t('fType')}</label><div class="type-grid">${types}</div></div>`;
+  document.getElementById('edFoot').innerHTML = `
+    ${ED.id ? `<button class="btn danger" onclick="edDelete()"><i class="ph ph-trash"></i>${t('del')}</button>` : ''}
+    <div class="spacer"></div>
+    <button class="btn" onclick="closeEditor()">${t('cancel')}</button>
+    <button class="btn primary" onclick="edSave()">${t('save')}</button>`;
+}
+function updPrev() { document.getElementById('edPrev').innerHTML = thumbSVG(ED.type, ED.c1, ED.c2, ED.brand, ED.wish ? 'wish' : 'solid'); }
+function edSet(k, v) {
+  // behåll ev. inmatad text innan omritning
+  if (k === 'type' && ED.c1 === GARMENTS[ED.type].def) ED.c1 = GARMENTS[v].def;
+  ED[k] = v;
+  const scroll = document.querySelector('#edModal .modal').scrollTop;
+  const tg = document.querySelector('#edBody .type-grid'); const tgs = tg ? tg.scrollTop : 0;
+  renderEditor();
+  document.querySelector('#edModal .modal').scrollTop = scroll;
+  const tg2 = document.querySelector('#edBody .type-grid'); if (tg2) tg2.scrollTop = tgs;
+}
+function edSave() {
+  const rec = { id: ED.id || uid(), type: ED.type, brand: (ED.brand||'').trim(), name: (ED.name||'').trim(), c1: ED.c1, c2: ED.c2 || '', wish: !!ED.wish, fav: !!ED.fav, added: ED.added || Date.now() };
+  if (rec.fav) S.items.forEach(i => { if (i.type === rec.type && i.id !== rec.id) i.fav = false; });
+  const idx = S.items.findIndex(i => i.id === rec.id);
+  if (idx >= 0) S.items[idx] = rec; else S.items.push(rec);
+  S.tryOn[GARMENTS[rec.type].slot] = rec.id;
+  for (const s in S.tryOn) if (S.tryOn[s] === rec.id && s !== GARMENTS[rec.type].slot) delete S.tryOn[s];
+  save(); closeEditor(); renderAll();
+}
+function edDelete() {
+  if (!confirm(t('confirmDel'))) return;
+  S.items = S.items.filter(i => i.id !== ED.id);
+  for (const s in S.tryOn) if (S.tryOn[s] === ED.id) delete S.tryOn[s];
+  save(); closeEditor(); renderAll();
+}
+
+// ─── Snabbstart ──────────────────────────────────────────
+function openQuick() {
+  document.getElementById('qTitle').textContent = t('qTitle');
+  document.getElementById('qIntro').textContent = t('qIntro');
+  document.getElementById('qDone').textContent = t('qDone');
+  renderQuick();
+  document.getElementById('qModal').classList.add('open');
+}
+function closeQuick() { document.getElementById('qModal').classList.remove('open'); renderAll(); }
+function renderQuick() {
+  let h = '';
+  for (const z of ZONES) {
+    h += `<div class="q-zone">${t('zones')[z]}</div><div class="quick-grid">`;
+    for (const k of TYPE_ORDER.filter(k => GARMENTS[k].zone === z)) {
+      const n = S.items.filter(i => i.type === k && !i.wish).length;
+      h += `<button class="q-tile${n?' has':''}" onclick="quickAdd('${k}')">${n ? `<span class="q-badge">${n}</span>` : ''}${thumbSVG(k, null, null, null)}<span>${esc(tType(k))}</span></button>`;
+    }
+    h += `</div>`;
+  }
+  document.getElementById('qBody').innerHTML = h;
+}
+function quickAdd(type) {
+  S.items.push({ id: uid(), type, brand: '', name: '', c1: GARMENTS[type].def, c2: '', wish: false, fav: false, added: Date.now() });
+  save(); renderQuick();
+}
+
+// ─── Backup-länk ─────────────────────────────────────────
+function b64e(str) { return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function b64d(s) { s = s.replace(/-/g,'+').replace(/_/g,'/'); while (s.length % 4) s += '='; return decodeURIComponent(escape(atob(s))); }
+function encodeWardrobe() {
+  const rows = S.items.map(i => [i.type, i.brand || '', i.name || '', (i.c1||'').replace('#',''), (i.c2||'').replace('#',''), (i.wish?1:0) | (i.fav?2:0)]);
+  return b64e(JSON.stringify({ v:1, i: rows }));
+}
+function decodeWardrobe(s) {
+  const d = JSON.parse(b64d(s));
+  if (!d || d.v !== 1 || !Array.isArray(d.i)) throw new Error('format');
+  return d.i.filter(r => GARMENTS[r[0]]).map(r => ({
+    id: uid(), type: r[0], brand: String(r[1]||'').slice(0,60), name: String(r[2]||'').slice(0,80),
+    c1: /^[0-9a-f]{6}$/i.test(r[3]) ? '#'+r[3] : GARMENTS[r[0]].def,
+    c2: /^[0-9a-f]{6}$/i.test(r[4]) ? '#'+r[4] : '',
+    wish: !!(r[5] & 1), fav: !!(r[5] & 2), added: Date.now(),
+  }));
+}
+function openBackup() {
+  document.getElementById('bkTitle').textContent = t('bkTitle');
+  document.getElementById('bkIntro').textContent = t('bkIntro');
+  document.getElementById('bkCopy').textContent = t('bkCopy');
+  document.getElementById('bkUrl').value = `${location.origin}${location.pathname}#w=${encodeWardrobe()}`;
+  document.getElementById('bkModal').classList.add('open');
+}
+function closeBackup() { document.getElementById('bkModal').classList.remove('open'); }
+async function copyBackup() {
+  const inp = document.getElementById('bkUrl');
+  try { await navigator.clipboard.writeText(inp.value); } catch(e) { inp.select(); document.execCommand && document.execCommand('copy'); }
+  document.getElementById('bkCopy').textContent = t('bkCopied');
+  setTimeout(() => { const b = document.getElementById('bkCopy'); if (b) b.textContent = t('bkCopy'); }, 1800);
+}
+
+let PENDING_IMPORT = null;
+function checkImport() {
+  const m = location.hash.match(/[#&]w=([A-Za-z0-9_-]+)/);
+  if (!m) return;
+  try { PENDING_IMPORT = decodeWardrobe(m[1]); } catch(e) { PENDING_IMPORT = null; }
+  renderImportBanner();
+}
+function renderImportBanner() {
+  const el = document.getElementById('importBanner');
+  if (!PENDING_IMPORT) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="banner"><i class="ph ph-download-simple" style="font-size:18px;color:var(--k-orange)"></i>
+    <span>${T[S.lang].importQ(PENDING_IMPORT.length)}</span><span class="spacer"></span>
+    <button class="btn" onclick="doImport(false)">${t('importNo')}</button>
+    <button class="btn primary" onclick="doImport(true)">${t('importYes')}</button></div>`;
+}
+function doImport(yes) {
+  if (yes && PENDING_IMPORT) { S.items = PENDING_IMPORT; S.tryOn = {}; save(); }
+  PENDING_IMPORT = null;
+  history.replaceState(null, '', location.pathname + location.search);
+  renderImportBanner(); renderAll();
+}
+
+// ─── Init ────────────────────────────────────────────────
+document.querySelectorAll('#langTog button').forEach(b => b.addEventListener('click', () => {
+  S.lang = b.dataset.v;
+  try { localStorage.setItem('ka_w_lang', S.lang); } catch(e) {}
+  S.wxText = '';
+  renderAll(); renderImportBanner();
+}));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeEditor(); closeQuick(); closeBackup(); } });
+
+load();
+checkImport();
+renderAll();
+</script>
+</body>
+</html>

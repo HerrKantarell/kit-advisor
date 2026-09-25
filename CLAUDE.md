@@ -129,6 +129,15 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - Search Console-rapport: privat repo HerrKantarell/kit-advisor-seo (GitHub Action varje måndag, secret GSC_CREDENTIALS = tjänstkonto-JSON). Sökdata ska INTE läggas i detta publika repo
 - Schemalagd Claude-körning läser rapporten och öppnar PR med innehållsförslag — mergas aldrig automatiskt
 
+### Garderob — dold prototyp (wardrobe.html)
+- Egen sida, länkas INTE från index.html, `noindex`, inte i sitemap.xml. Nås via kitadvisor.cc/wardrobe.html
+- Plaggtyper (GARMENTS), recept rekommendation → plaggtyper med alternativ (RECIPES), resolver (ägt / ersätter / saknas)
+- Klippdocka i SVG (viewBox 0 0 200 400), plagg ritas i lager efter `z`, färg + detaljfärg + märkets ordmärke
+- Ägda och önskade plagg (önskade = streckade på dockan), snabbstart ("tryck på det du har"), backup-länk `#w=` (base64url-JSON)
+- localStorage: `ka_wardrobe` ({v:1, items}), `ka_w_lang`; läser `ka_thermo`
+- Tröskellogiken i recommendKeys() är en KOPIA av renderKit() i index.html — håll i synk tills den bryts ut (etapp 0)
+- Ej med än: logotyper, produktbilder, koppling in i index.html
+
 ## Roadmap (prioritetsordning)
 1. ~~Delningsbar turlink~~ — klar
 2. ~~Delningsbar kit-bild~~ — klar
@@ -156,6 +165,7 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 
 ## Filer
 index.html — hela applikationen
+wardrobe.html — dold prototyp: garderob + klippdocka
 CLAUDE.md — denna fil
 DESIGN.md — designsystemreferens (Kantarell v2)
 README.md — projektöversikt
