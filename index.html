@@ -852,7 +852,7 @@ const T = {
     inHours: h=>`+${h}h`,
     config:'Turkonfiguration', duration:'Längd', speed:'Snitthastighet', intensity:'Intensitet',
     easy:'Lugn', mod:'Tempo', hard:'Hård',
-    analysis:'Analys', kit:'Utrustning',
+    analysis:'Analys', kitLbl:'Utrustning',
     effTemp:'Upplevd temp', windChill:'Vindkyla', effort:'Ansträngning',
     speedEffect:'Fart',
     durPen:'Turlängd', humPen:'Hög fukt',
@@ -960,7 +960,7 @@ const T = {
     inHours: h=>`+${h}h`,
     config:'Ride Setup', duration:'Duration', speed:'Average speed', intensity:'Intensity',
     easy:'Easy', mod:'Tempo', hard:'Hard',
-    analysis:'Analysis', kit:'Kit',
+    analysis:'Analysis', kitLbl:'Kit',
     effTemp:'Feels like', windChill:'Wind chill', effort:'Effort',
     speedEffect:'Speed',
     durPen:'Ride length', humPen:'High humidity',
@@ -1945,7 +1945,7 @@ function updateLabels() {
   document.getElementById('lblSpeed').textContent    =t('speed');
   document.getElementById('lblIntensity').textContent=t('intensity');
   document.getElementById('lblAnalysis').textContent =t('analysis');
-  document.getElementById('lblKit').textContent      =t('kit');
+  document.getElementById('lblKit').textContent      =t('kitLbl');
   document.getElementById('intEasy').textContent     =t('easy');
   document.getElementById('intMod').textContent      =t('mod');
   document.getElementById('intHard').textContent     =t('hard');
