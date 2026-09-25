@@ -259,6 +259,9 @@ header {
 .wx-cell .wu { font-size: 11px; color: var(--k-mid); }
 .wx-cell.wx-hi { border-color: rgba(52,121,98,0.3); background: var(--k-orange-tt); }
 .wx-cell.wx-hi .wv { color: var(--k-orange); }
+.wx-cell .wl.wl-dir { display: flex; justify-content: space-between; align-items: center; }
+.wx-dir { display: inline-flex; align-items: center; gap: 3px; letter-spacing: 0.04em; color: var(--k-orange); }
+.wx-dir i { font-size: 12px; display: inline-block; }
 .wx-desc { margin-top: 9px; font-size: 12px; color: var(--k-mid); }
 
 /* ── Sliders ── */
@@ -312,6 +315,13 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 .pulse-marker { position:relative; width:14px; height:14px; }
 .pulse-marker .core { position:absolute; inset:0; border-radius:50%; background:var(--k-orange); border:2px solid var(--k-white); box-shadow:0 1px 4px rgba(52,121,98,0.4); }
 .pulse-marker .ring { position:absolute; inset:0; border-radius:50%; background:var(--k-orange); animation:pulse-ring 2s ease-out infinite; }
+
+/* ── Wind arrow on map ── */
+/* Sits on the upwind side of the marker and points at it, i.e. in the direction the wind blows */
+.wind-marker { width:96px; height:96px; pointer-events:none; }
+.wind-marker svg { display:block; overflow:visible; }
+.wind-marker .halo { stroke:var(--k-white); stroke-width:5; opacity:0.9; }
+.wind-marker .shaft { stroke:var(--k-orange); stroke-width:2; }
 
 /* ── Responsive ── */
 @media (max-width: 820px) {
@@ -1218,6 +1228,16 @@ const pulseIcon = L.divIcon({
   className:'',iconSize:[14,14],iconAnchor:[7,7]
 });
 let marker=null;
+let windMarker=null;
+
+// Wind lines: own pane between tiles (200) and markers (600), drawn on one canvas
+map.createPane('windPane');
+map.getPane('windPane').style.zIndex = 350;
+map.getPane('windPane').style.pointerEvents = 'none';
+const windRenderer = L.canvas({ pane:'windPane', padding:0.5 });
+const windLines = L.layerGroup().addTo(map);
+let windField = null, windFieldReq = 0;
+map.on('zoomend', () => { if (windField) renderWindLines(); });
 
 map.on('click', e => selectLocation(e.latlng.lat, e.latlng.lng));
 
@@ -1324,6 +1344,8 @@ function onboardGeo() {
 
 function placeMarker(lat,lng) {
   if(marker) map.removeLayer(marker);
+  if(windMarker) { map.removeLayer(windMarker); windMarker=null; }
+  windLines.clearLayers(); windField=null; windFieldReq++;
   marker = L.marker([lat,lng],{icon:pulseIcon}).addTo(map);
 }
 
@@ -1346,6 +1368,7 @@ async function selectLocation(lat, lng, opts = {}) {
     const days = S.isShared ? 16 : 2;
     const [weather,name] = await Promise.all([fetchWeather(lat,lng,days), reverseGeocode(lat,lng)]);
     S.wxLive=weather; S.wx=weather;
+    loadWindField();
     if (!S.isShared || !S.locName) S.locName=name;
     setLocName(S.isShared ? (S.shareName||name) : name);
     if (S.isShared) {
@@ -1398,6 +1421,7 @@ async function fetchWeather(lat, lng, days=2) {
     gusts:d.hourly.wind_gusts_10m,
     precip:d.hourly.precipitation, humidity:d.hourly.relative_humidity_2m,
     wcode:d.hourly.weather_code, nowIdx:nowIdx>=0?nowIdx:0,
+    tz:d.timezone, days,
   };
   return { temp:c.temperature_2m, wind:c.wind_speed_10m, windDir:c.wind_direction_10m, gusts:c.wind_gusts_10m, precip:c.precipitation, humidity:c.relative_humidity_2m, wcode:c.weather_code };
 }
@@ -1447,7 +1471,7 @@ function renderWeather(w) {
         <div class="wv">${fmtTemp(w.temp)}</div>
       </div>
       <div class="wx-cell">
-        <div class="wl">${cx.wind}</div>
+        <div class="wl wl-dir">${cx.wind}${w.windDir!=null?`<span class="wx-dir" title="${T[S.lang].windHintLabel(windCardinal(w.windDir))}"><i class="ph ph-arrow-up" style="transform:rotate(${(w.windDir+180)%360}deg)"></i>${windCardinal(w.windDir)}</span>`:''}</div>
         <div class="wv">${fmtWind(w.wind)}</div>
       </div>
       <div class="wx-cell">
@@ -2056,7 +2080,7 @@ function renderWindHint() {
     return;
   }
   const dir = windCardinal(S.wx.windDir);
-  document.getElementById('windArrow').style.transform = `rotate(${S.wx.windDir}deg)`;
+  document.getElementById('windArrow').style.transform = `rotate(${(S.wx.windDir+180)%360}deg)`; // points downwind, like the map and weather cell
   document.getElementById('windHintLabel').textContent  = T[S.lang].windHintLabel(dir);
   document.getElementById('windHintBody').textContent   = T[S.lang].windHintTip(dir);
   sec.style.display = 'block';
@@ -2070,7 +2094,118 @@ function toggleWindHint() {
   caret.style.transform = open ? 'rotate(180deg)' : '';
 }
 
-function renderAll() { if(!S.wx) return; renderWeather(S.wx); renderAnalysis(); renderWindHint(); }
+// Arrow on the map: placed upwind of the marker, pointing at it. Length grows with wind speed.
+function renderMapWind() {
+  if (windMarker) { map.removeLayer(windMarker); windMarker = null; }
+  const w = S.wx;
+  if (!w || w.windDir == null || w.wind < 2 || S.lat == null) return;
+  const tip = 36, len = 14 + Math.min(w.wind, 40) / 40 * 24, tail = tip - len;
+  const path = `M48 ${tail} L48 ${tip} M42 ${tip-7} L48 ${tip} L54 ${tip-7}`;
+  const html = `<div class="wind-marker" style="transform:rotate(${w.windDir}deg)">
+    <svg width="96" height="96" viewBox="0 0 96 96" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path class="halo" d="${path}"/><path class="shaft" d="${path}"/>
+    </svg></div>`;
+  windMarker = L.marker([S.lat, S.lng], {
+    icon: L.divIcon({ html, className:'', iconSize:[96,96], iconAnchor:[48,48] }),
+    interactive:false, keyboard:false, zIndexOffset:-100
+  }).addTo(map);
+}
+
+// ─── WIND LINES ───────────────────────────────────────────
+// Fetched once per location: hourly wind on a 7×7 grid around the visible map.
+// Static streamlines are traced through that field; the forecast slider redraws
+// from the same data without refetching.
+const WF_N = 7;
+async function loadWindField() {
+  const req = ++windFieldReq;
+  const b = map.getBounds().pad(0.5);
+  const s = b.getSouth(), n = b.getNorth(), w = b.getWest(), e = b.getEast();
+  const lats = [], lngs = [];
+  for (let i = 0; i < WF_N; i++) lats.push(s + (n - s) * i / (WF_N - 1));
+  for (let j = 0; j < WF_N; j++) lngs.push(w + (e - w) * j / (WF_N - 1));
+  const qLat = [], qLng = [];
+  lats.forEach(la => lngs.forEach(lo => { qLat.push(la.toFixed(2)); qLng.push(lo.toFixed(2)); }));
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${qLat.join(',')}&longitude=${qLng.join(',')}` +
+    `&hourly=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh` +
+    `&timezone=${encodeURIComponent(S.hourly?.tz || 'auto')}&forecast_days=${S.hourly?.days || 2}`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return;
+    const d = await r.json();
+    if (req !== windFieldReq || !Array.isArray(d) || d.length !== WF_N * WF_N) return;
+    windField = { lats, lngs, speed: d.map(p => p.hourly.wind_speed_10m), dir: d.map(p => p.hourly.wind_direction_10m) };
+    renderWindLines();
+  } catch { /* lines are decoration — ignore failures */ }
+}
+
+// Bilinear sample of the flow vector (east, north) in km/h at a lat/lng
+function sampleWind(lat, lng, h) {
+  const f = windField;
+  const fy = (lat - f.lats[0]) / (f.lats[WF_N-1] - f.lats[0]) * (WF_N - 1);
+  const fx = (lng - f.lngs[0]) / (f.lngs[WF_N-1] - f.lngs[0]) * (WF_N - 1);
+  if (!(fx >= 0 && fy >= 0 && fx <= WF_N - 1 && fy <= WF_N - 1)) return null;
+  const i0 = Math.min(Math.floor(fy), WF_N - 2), j0 = Math.min(Math.floor(fx), WF_N - 2);
+  const ty = fy - i0, tx = fx - j0;
+  let u = 0, v = 0;
+  for (const [di, dj, wgt] of [[0,0,(1-ty)*(1-tx)],[0,1,(1-ty)*tx],[1,0,ty*(1-tx)],[1,1,ty*tx]]) {
+    const k = (i0 + di) * WF_N + (j0 + dj);
+    const sp = f.speed[k]?.[h], dr = f.dir[k]?.[h];
+    if (sp == null || dr == null) return null;
+    const rad = dr * Math.PI / 180;               // direction the wind comes FROM
+    u += -Math.sin(rad) * sp * wgt;               // flow towards east
+    v += -Math.cos(rad) * sp * wgt;               // flow towards north
+  }
+  return { u, v, speed: Math.hypot(u, v) };
+}
+
+function renderWindLines() {
+  windLines.clearLayers();
+  if (!windField || !S.hourly) return;
+  const h = Math.min(S.hourly.nowIdx + S.fcOffset, S.hourly.times.length - 1);
+  const z = map.getZoom();
+  // Seed only where the field and the (slightly padded) view overlap
+  const view = map.getBounds().pad(0.2);
+  const sw = map.project([Math.max(windField.lats[0], view.getSouth()), Math.max(windField.lngs[0], view.getWest())], z);
+  const ne = map.project([Math.min(windField.lats[WF_N-1], view.getNorth()), Math.min(windField.lngs[WF_N-1], view.getEast())], z);
+  const GAP = 78, STEP = 3;
+  let seed = 7;                                     // fixed PRNG → same layout on every redraw
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const trace = (p, dirSign, maxSteps) => {
+    const pts = [];
+    for (let k = 0; k < maxSteps; k++) {
+      const ll = map.unproject(p, z);
+      const w = sampleWind(ll.lat, ll.lng, h);
+      if (!w || w.speed < 1) break;
+      p = L.point(p.x + dirSign * w.u / w.speed * STEP, p.y - dirSign * w.v / w.speed * STEP);
+      pts.push(p);
+    }
+    return pts;
+  };
+  for (let y = ne.y; y < sw.y; y += GAP) {
+    for (let x = sw.x; x < ne.x; x += GAP) {
+      const p0 = L.point(x + rnd() * GAP, y + rnd() * GAP);
+      const ll0 = map.unproject(p0, z);
+      const w0 = sampleWind(ll0.lat, ll0.lng, h);
+      if (!w0 || w0.speed < 2) continue;
+      // Line length follows local wind speed: ~30 px in a breeze, ~100 px in a gale
+      const steps = Math.round((30 + Math.min(w0.speed, 50) * 1.4) / STEP / 2);
+      const pts = [...trace(p0, -1, steps).reverse(), p0, ...trace(p0, 1, steps)];
+      if (pts.length < 4) continue;
+      const lls = pts.map(pt => map.unproject(pt, z));
+      // Tapered streak: faint tail → solid head, so direction reads without an arrowhead
+      const SEG = 5, n = lls.length - 1;
+      for (let sgm = 0; sgm < SEG; sgm++) {
+        const a = Math.floor(n * sgm / SEG), b = Math.floor(n * (sgm + 1) / SEG);
+        L.polyline(lls.slice(a, b + 1), {
+          renderer: windRenderer, interactive: false, color: '#347962',
+          weight: 1 + sgm * 0.3, opacity: 0.08 + sgm * 0.16, lineCap: 'round'
+        }).addTo(windLines);
+      }
+    }
+  }
+}
+
+function renderAll() { if(!S.wx) return; renderWeather(S.wx); renderAnalysis(); renderWindHint(); renderMapWind(); renderWindLines(); }
 
 // ─── UPDATE UI LABELS ─────────────────────────────────────
 function updateLabels() {

@@ -99,7 +99,16 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - API-anropet hämtar wind_direction_10m (current + hourly)
 - #windHintSec i höger panel (mellan analys och utrustning), dold om vind < 15 km/h
 - Kollapserad som default, expanderas med toggleWindHint()
-- ph-arrow-up roteras till windDir-grader (pekar mot varifrån vinden kommer)
+- ph-arrow-up roteras till windDir+180 (pekar dit vinden blåser — samma konvention som kartan och vädercellen, som SMHI/Yr)
+
+### Fas 8 — Vindriktning visuellt
+- Kartan: renderMapWind() lägger en egen Leaflet-markör (windMarker, interactive:false) med SVG-pil på uppvindssidan av platsmarkören, pekande mot den. Pilens längd skalar med vindstyrka (0–40 km/h). Dold vid < 2 km/h. Uppdateras via renderAll() (även prognosslidern), tas bort i placeMarker()
+- Vädercellen "Vind": pil (windDir+180) + väderstreck (varifrån) till höger i etiketten, tooltip windHintLabel
+- Alla pilar i appen pekar dit vinden blåser; texten anger varifrån den kommer
+- Vindlinjer (statiska, ingen animation, inspirerat av Apple Väder): loadWindField() körs en gång efter väderhämtningen i selectLocation() — ett Open-Meteo-anrop med 7×7 = 49 koordinater (kommaseparerade) över kartvyn pad(0.5), hourly wind_speed/direction, samma timezone/forecast_days som huvudanropet (S.hourly.tz/days) så att timindex matchar
+- renderWindLines(): strömlinjer genom bilinjärt interpolerat fält, frön var 78:e px (fast PRNG → samma mönster vid omritning), längd 30–100 px efter vindstyrka, 5 segment med ökande opacitet/tjocklek (svans → huvud visar riktningen). Ritas på en canvas (L.canvas) i egen pane 'windPane' (z 350, mellan tiles och markörer). Ritas om utan nytt anrop vid prognosslider (renderAll) och zoomend
+- windFieldReq-räknare förhindrar att ett sent svar ritar linjer för en gammal plats. Misslyckat anrop ignoreras tyst (linjerna är dekor)
+- Open-Meteo räknar varje koordinat som ett anrop mot gratisgränsen (10 000/dag per IP) — 49 per platsval
 - Strängar: T[lang].windHintLabel(dir), T[lang].windHintTip(dir), T[lang].windDirs[]
 
 ### Fas 5 — Namn, domän, SEO
