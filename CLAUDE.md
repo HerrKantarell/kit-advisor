@@ -112,7 +112,8 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - Dold SEO-text: <section class="sr-only"> direkt efter <body> med <h1>, "How it works", kit-trösklar och FAQ. Syns inte men läses av crawlers (även de som inte kör JS) och skärmläsare. Håll texten i synk med formeln/trösklarna i koden — FAQ-exemplen är räknade med 28 km/h, 10 km/h vind, lugn, 2 h
 - FAQPage JSON-LD i <head> speglar samma frågor/svar som den dolda sektionen
 - robots.txt (släpper in alla, inkl. GPTBot/ClaudeBot/PerplexityBot m.fl.) + sitemap.xml
-- Favicon: blackletter-"K" (Manufacturing Consent, utritad som path) i #F7F7F5 på grön rundad ruta — favicon.svg, favicon.ico (16/32/48), apple-touch-icon.png (180), icon-192/512.png, site.webmanifest
+- Favicon: blackletter-"K" (Manufacturing Consent, utritad som path) i #F7F7F5 på grön rundad ruta — .github/workflows/ — IndexNow + Lighthouse CI; lighthouserc.json — Lighthouse-gränser; 576294f82ad8ed52e0685dad366b5ccf.txt — IndexNow-nyckel
+favicon.svg, favicon.ico (16/32/48), apple-touch-icon.png (180), icon-192/512.png, site.webmanifest
 - <html lang="en"> (default engelska)
 
 ### Fas 6 — Besöksstatistik
@@ -122,6 +123,12 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - Statistik: dash.cloudflare.com → Analytics & Logs → Web Analytics → kitadvisor.cc
 - Begränsning: inga custom events (affiliate-klick, "Dela tur" m.m. mäts inte).
   Om det behövs: redirect-räknare för affiliate-länkar eller komplettera med GoatCounter/Plausible
+
+### Fas 7 — SEO-automation
+- `.github/workflows/indexnow.yml`: vid push till main som ändrar index.html/llms.txt → sätter sitemap.xml <lastmod> till dagens datum (bot-commit), väntar 2 min på Pages-deploy, pingar IndexNow (Bing/Yandex m.fl., inte Google). Nyckelfil: `576294f82ad8ed52e0685dad366b5ccf.txt` i roten — ta inte bort
+- `.github/workflows/lighthouse.yml` + `lighthouserc.json`: Lighthouse CI på varje PR. SEO < 0.9 = fel, övrigt varningar
+- Search Console-rapport: privat repo HerrKantarell/kit-advisor-seo (GitHub Action varje måndag, secret GSC_CREDENTIALS = tjänstkonto-JSON). Sökdata ska INTE läggas i detta publika repo
+- Schemalagd Claude-körning läser rapporten och öppnar PR med innehållsförslag — mergas aldrig automatiskt
 
 ## Roadmap (prioritetsordning)
 1. ~~Delningsbar turlink~~ — klar
