@@ -12,8 +12,8 @@ rekommendationer baserade på effektiv temperatur (vindkyla + ansträngning).
 - Leaflet 1.9.4 (karta, CDN)
 - Open-Meteo API (väder, gratis, ingen nyckel)
 - Nominatim (reverse geocode, gratis)
-- CartoDB Positron tiles
-- Phosphor Icons 2.1.1 (CDN)
+- Esri World Light Gray Base tiles (server.arcgisonline.com, attribution "Tiles © Esri")
+- Phosphor Icons 2.1.1 (CDN, endast regular-vikten: src/regular/style.css, laddas icke-blockerande)
 - Playfair Display (Google Fonts)
 - Manufacturing Consent (blackletter, CDN jsdelivr — används i logotypen)
 - Cloudflare Web Analytics (cookiefri besöksstatistik, beacon-script före </body>, dashboard på dash.cloudflare.com — inga custom events)
@@ -141,6 +141,7 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - navigator.clipboard.write kräver HTTPS — visa fallback (enbart nedladdning) på HTTP
 - CSS-variabeln --k-orange heter så av historiska skäl men är numera grön (#347962)
 - windChill-formeln är matematiskt giltig även för T>10 men blend:as ned mot 0 vid 33°C
+- LCP-elementet är en kartbild (Esri). Därför: preconnect till server.arcgisonline.com, Leaflet fadeAnimation:false, och Phosphor laddas som icke-blockerande CSS (media="print" onload). Ladda INTE Phosphors index.js i <head> — den blockerar rendering och drar in alla sex vikter
 - Annonsblockerare (uBlock m.fl.) blockerar Cloudflare-beacon — egna besök syns ofta inte i statistiken
 
 ## Filer
