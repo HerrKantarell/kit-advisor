@@ -109,6 +109,10 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - SEO: meta description, OG-taggar, twitter:card, canonical, JSON-LD (WebApplication)
 - og:image: og-image.jpg (1200×630, JPG ~160 KB, skalad från kitadvisor_og-image.png). og-image.svg finns kvar men används inte (SVG stöds inte av Facebook/LinkedIn/X)
 - llms.txt i repo-roten (för AI-crawlers: Perplexity, ChatGPT m.fl.)
+- Dold SEO-text: <section class="sr-only"> direkt efter <body> med <h1>, "How it works", kit-trösklar och FAQ. Syns inte men läses av crawlers (även de som inte kör JS) och skärmläsare. Håll texten i synk med formeln/trösklarna i koden — FAQ-exemplen är räknade med 28 km/h, 10 km/h vind, lugn, 2 h
+- FAQPage JSON-LD i <head> speglar samma frågor/svar som den dolda sektionen
+- robots.txt (släpper in alla, inkl. GPTBot/ClaudeBot/PerplexityBot m.fl.) + sitemap.xml
+- Favicon: blackletter-"K" (Manufacturing Consent, utritad som path) i #F7F7F5 på grön rundad ruta — favicon.svg, favicon.ico (16/32/48), apple-touch-icon.png (180), icon-192/512.png, site.webmanifest
 - <html lang="en"> (default engelska)
 
 ### Fas 6 — Besöksstatistik
@@ -152,3 +156,5 @@ README.md — projektöversikt
 og-image.jpg — Open Graph-bild (1200×630) för länkförhandsvisningar
 kitadvisor_og-image.png — källbild i full upplösning (1670×942) för og-image.jpg
 llms.txt — maskinläsbar projektbeskrivning för AI-crawlers
+robots.txt, sitemap.xml — för sökmotorer
+favicon.svg, favicon.ico, apple-touch-icon.png, icon-192.png, icon-512.png, site.webmanifest — ikoner

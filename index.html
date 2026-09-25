@@ -19,6 +19,11 @@
 <meta name="twitter:title" content="Kit/Advisor — Cycling Clothing by Weather">
 <meta name="twitter:description" content="What to wear on your ride — based on real weather. Pick your location, set your pace and ride duration, get a full kit recommendation.">
 <link rel="canonical" href="https://kitadvisor.cc">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#347962">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -30,6 +35,78 @@
   "operatingSystem": "Any",
   "inLanguage": ["en", "sv"],
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What should I wear cycling?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It depends on the feels-like temperature on the bike, not the air temperature. Kit/Advisor calculates it from live weather, wind chill at your riding speed, effort, ride duration, humidity and whether you run cold or warm, then recommends a full kit: jersey, shorts or tights, gloves, headwear, shoe covers and rain gear."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What to wear cycling at 0°C?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "At 0°C with a 10 km/h wind, riding 28 km/h at an easy pace for 2 hours, the feels-like temperature is about −4°C. Wear a double layer with a windproof jacket, winter bib tights with a base layer, extreme gloves or lobster mitts, a balaclava under the helmet and winter shoes with covers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What to wear cycling at 5°C?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "At 5°C with a 10 km/h wind, riding 28 km/h at an easy pace for 2 hours, the feels-like temperature is about +2°C. Wear a winter jacket over a thermal top, winter bib tights, heavy winter gloves, a cap under the helmet, and shoe covers with thermal socks."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What to wear cycling at 10°C?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "At 10°C with a 10 km/h wind, riding 28 km/h at an easy pace for 2 hours, the feels-like temperature is about +9°C. Wear a thermal jersey with a base layer, bib tights, winter gloves and ear warmers or a headband."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What to wear cycling at 15°C?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "At 15°C with a 10 km/h wind, riding 28 km/h at an easy pace for 2 hours, the feels-like temperature is about +16°C. Wear a long sleeve jersey (or short sleeve with a base layer), bib shorts with optional knee warmers, thin gloves and ear warmers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What to wear cycling at 20°C?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "At 20°C and above, a short sleeve jersey and bib shorts are usually enough. Bring arm warmers if the morning is cool or the ride is long."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is the feels-like temperature calculated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Effective temperature = wind chill (air temperature, ambient wind + riding speed) + effort bonus (easy +4°C, tempo +7°C, hard +11°C) + duration penalty (over 1.5 h −1°C, over 3 h −2°C) + humidity penalty (over 85% −2°C) + personal thermostat (runs cold −2°C, runs warm +2°C). Wind chill is applied in full at 10°C and below and fades out towards 33°C."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Kit/Advisor free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Kit/Advisor is free, needs no sign-up and works in any browser. Weather data comes from Open-Meteo."
+      }
+    }
+  ]
 }
 </script>
 <link rel="preconnect" href="https://server.arcgisonline.com">
@@ -569,9 +646,51 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 }
 .geo-btn:hover { opacity: 0.88; }
 .geo-btn.hidden { display: none; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
 </style>
 </head>
 <body>
+<!-- Crawlable description for search engines, AI crawlers and screen readers. Visually hidden. -->
+<section class="sr-only" aria-labelledby="seoTitle">
+  <h1 id="seoTitle">Kit/Advisor — what to wear cycling, based on real weather</h1>
+  <p>Kit/Advisor is a free cycling clothing calculator. Pick a location on the map or search for a place, set ride duration, average speed and intensity, and get a complete kit recommendation based on live weather and a feels-like temperature that accounts for wind chill at riding speed.</p>
+  <h2>How it works</h2>
+  <ol>
+    <li>Choose a location on the map, search for a place or use your position. Live weather is fetched from Open-Meteo.</li>
+    <li>Set ride duration (0.5–8 h), average speed (14–44 km/h), intensity (easy, tempo or hard) and whether you run cold or warm.</li>
+    <li>Get a kit list: jersey, bib shorts or tights, gloves, headwear, shoe covers, rain jacket and glasses when it rains, and a wind vest for long rides.</li>
+    <li>Look ahead with the hourly forecast, share the ride as a link or export a kit card image.</li>
+  </ol>
+  <h2>Kit by feels-like temperature</h2>
+  <ul>
+    <li>22°C and above: short sleeve jersey and bib shorts.</li>
+    <li>17–22°C: jersey with arm warmers, bib shorts and light gloves.</li>
+    <li>12–17°C: long sleeve jersey, bib shorts or knee warmers, thin gloves and ear warmers.</li>
+    <li>7–12°C: thermal jersey with base layer, bib tights, winter gloves and headband.</li>
+    <li>2–7°C: winter jacket, winter bib tights, heavy gloves, cap under the helmet and shoe covers.</li>
+    <li>Below 2°C: double layer with windproof jacket, winter tights with base layer, lobster mitts, balaclava and winter shoes.</li>
+  </ul>
+  <h2>Frequently asked questions</h2>
+    <h3>What should I wear cycling?</h3>
+    <p>It depends on the feels-like temperature on the bike, not the air temperature. Kit/Advisor calculates it from live weather, wind chill at your riding speed, effort, ride duration, humidity and whether you run cold or warm, then recommends a full kit: jersey, shorts or tights, gloves, headwear, shoe covers and rain gear.</p>
+    <h3>What to wear cycling at 0°C?</h3>
+    <p>At 0°C with a 10 km/h wind, riding 28 km/h at an easy pace for 2 hours, the feels-like temperature is about −4°C. Wear a double layer with a windproof jacket, winter bib tights with a base layer, extreme gloves or lobster mitts, a balaclava under the helmet and winter shoes with covers.</p>
+    <h3>What to wear cycling at 5°C?</h3>
+    <p>At 5°C with a 10 km/h wind, riding 28 km/h at an easy pace for 2 hours, the feels-like temperature is about +2°C. Wear a winter jacket over a thermal top, winter bib tights, heavy winter gloves, a cap under the helmet, and shoe covers with thermal socks.</p>
+    <h3>What to wear cycling at 10°C?</h3>
+    <p>At 10°C with a 10 km/h wind, riding 28 km/h at an easy pace for 2 hours, the feels-like temperature is about +9°C. Wear a thermal jersey with a base layer, bib tights, winter gloves and ear warmers or a headband.</p>
+    <h3>What to wear cycling at 15°C?</h3>
+    <p>At 15°C with a 10 km/h wind, riding 28 km/h at an easy pace for 2 hours, the feels-like temperature is about +16°C. Wear a long sleeve jersey (or short sleeve with a base layer), bib shorts with optional knee warmers, thin gloves and ear warmers.</p>
+    <h3>What to wear cycling at 20°C?</h3>
+    <p>At 20°C and above, a short sleeve jersey and bib shorts are usually enough. Bring arm warmers if the morning is cool or the ride is long.</p>
+    <h3>How is the feels-like temperature calculated?</h3>
+    <p>Effective temperature = wind chill (air temperature, ambient wind + riding speed) + effort bonus (easy +4°C, tempo +7°C, hard +11°C) + duration penalty (over 1.5 h −1°C, over 3 h −2°C) + humidity penalty (over 85% −2°C) + personal thermostat (runs cold −2°C, runs warm +2°C). Wind chill is applied in full at 10°C and below and fades out towards 33°C.</p>
+    <h3>Is Kit/Advisor free?</h3>
+    <p>Yes. Kit/Advisor is free, needs no sign-up and works in any browser. Weather data comes from Open-Meteo.</p>
+</section>
 <div id="app">
 
   <header>
