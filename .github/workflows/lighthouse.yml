@@ -1,0 +1,21 @@
+# Runs Lighthouse on every PR against a local copy of the site.
+# SEO below 0.9 fails the check; performance, accessibility and best practices only warn
+# (map tiles and CDN scripts make those scores vary between runs).
+name: Lighthouse
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
