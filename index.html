@@ -29,11 +29,12 @@
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
 }
 </script>
+<link rel="preconnect" href="https://server.arcgisonline.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" media="print" onload="this.media='all'">
 
 <style>
 @font-face {
@@ -1081,7 +1082,7 @@ function fmtWind(kmh) {
 function speedKmh() { return parseInt(document.getElementById('speedSlider').value); }
 
 // ─── MAP ─────────────────────────────────────────────────
-const map = L.map('map',{center:[55.676,12.568],zoom:9,zoomControl:true});
+const map = L.map('map',{center:[55.676,12.568],zoom:9,zoomControl:true,fadeAnimation:false});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{
   attribution:'Tiles © <a href="https://www.esri.com/">Esri</a>',maxZoom:16
 }).addTo(map);
