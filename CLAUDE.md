@@ -21,7 +21,7 @@ rekommendationer baserade på effektiv temperatur (vindkyla + ansträngning).
 ## Hosting
 GitHub Pages — HerrKantarell/kit-advisor
 Allt lever i index.html. Inga byggsteg, inga beroenden att installera.
-Custom domän: kitadvisor.cc — registrerad och DNS-hanterad hos Porkbun (porkbun.com), ägare Leo Genbergs AB
+Custom domän: kitadvisor.cc — registrerad och DNS-hanterad hos Porkbun (porkbun.com), ägare Leo Genberg AB
 DNS (i Porkbun): ALIAS + CNAME → herrKantarell.github.io. DNS går INTE via Cloudflare. HTTPS via Let's Encrypt (GitHub hanterar automatiskt).
 
 ## Design
@@ -104,7 +104,7 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 
 ### Fas 5 — Namn, domän, SEO
 - Namn: Kit/Advisor (var Field/Trip)
-- Domän: kitadvisor.cc — Porkbun, Leo Genbergs AB
+- Domän: kitadvisor.cc — Porkbun, Leo Genberg AB
 - CONFIG.baseUrl = 'https://kitadvisor.cc'
 - SEO: meta description, OG-taggar, twitter:card, canonical, JSON-LD (WebApplication)
 - og:image: og-image.jpg (1200×630, JPG ~160 KB). Källbilden och den gamla og-image.svg är borttagna (SVG stöds inte av Facebook/LinkedIn/X)
@@ -168,4 +168,4 @@ CNAME — custom domän för GitHub Pages
 lighthouserc.json — Lighthouse CI-gränser
 .github/workflows/ — indexnow.yml (IndexNow + sitemap lastmod), lighthouse.yml (Lighthouse CI)
 .gitignore — OS-/editorfiler
-LICENSE — MIT, © Leo Genbergs AB
+LICENSE — MIT, © Leo Genberg AB

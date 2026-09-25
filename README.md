@@ -69,4 +69,4 @@ Hosted on GitHub Pages.
 
 ## License
 
-[MIT](LICENSE) © Leo Genbergs AB
+[MIT](LICENSE) © Leo Genberg AB
