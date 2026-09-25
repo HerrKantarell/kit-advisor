@@ -168,3 +168,4 @@ CNAME — custom domän för GitHub Pages
 lighthouserc.json — Lighthouse CI-gränser
 .github/workflows/ — indexnow.yml (IndexNow + sitemap lastmod), lighthouse.yml (Lighthouse CI)
 .gitignore — OS-/editorfiler
+LICENSE — MIT, © Leo Genbergs AB

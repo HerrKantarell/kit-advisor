@@ -66,3 +66,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 [Leaflet](https://leafletjs.com) · [Open-Meteo](https://open-meteo.com) · [Nominatim](https://nominatim.openstreetmap.org) · Esri basemap tiles · [Phosphor Icons](https://phosphoricons.com) · Playfair Display · Manufacturing Consent
 
 Hosted on GitHub Pages.
+
+## License
+
+[MIT](LICENSE) © Leo Genbergs AB
