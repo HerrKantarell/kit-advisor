@@ -21,7 +21,7 @@ rekommendationer baserade på effektiv temperatur (vindkyla + ansträngning).
 ## Hosting
 GitHub Pages — HerrKantarell/kit-advisor
 Allt lever i index.html. Inga byggsteg, inga beroenden att installera.
-Custom domän: kitadvisor.cc — registrerad och DNS-hanterad hos Porkbun (porkbun.com), ägare Leo Genbergs AB
+Custom domän: kitadvisor.cc — registrerad och DNS-hanterad hos Porkbun (porkbun.com), ägare Leo Genberg AB
 DNS (i Porkbun): ALIAS + CNAME → herrKantarell.github.io. DNS går INTE via Cloudflare. HTTPS via Let's Encrypt (GitHub hanterar automatiskt).
 
 ## Design
@@ -104,16 +104,15 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 
 ### Fas 5 — Namn, domän, SEO
 - Namn: Kit/Advisor (var Field/Trip)
-- Domän: kitadvisor.cc — Porkbun, Leo Genbergs AB
+- Domän: kitadvisor.cc — Porkbun, Leo Genberg AB
 - CONFIG.baseUrl = 'https://kitadvisor.cc'
 - SEO: meta description, OG-taggar, twitter:card, canonical, JSON-LD (WebApplication)
-- og:image: og-image.jpg (1200×630, JPG ~160 KB, skalad från kitadvisor_og-image.png). og-image.svg finns kvar men används inte (SVG stöds inte av Facebook/LinkedIn/X)
+- og:image: og-image.jpg (1200×630, JPG ~160 KB). Källbilden och den gamla og-image.svg är borttagna (SVG stöds inte av Facebook/LinkedIn/X)
 - llms.txt i repo-roten (för AI-crawlers: Perplexity, ChatGPT m.fl.)
 - Dold SEO-text: <section class="sr-only"> direkt efter <body> med <h1>, "How it works", kit-trösklar och FAQ. Syns inte men läses av crawlers (även de som inte kör JS) och skärmläsare. Håll texten i synk med formeln/trösklarna i koden — FAQ-exemplen är räknade med 28 km/h, 10 km/h vind, lugn, 2 h
 - FAQPage JSON-LD i <head> speglar samma frågor/svar som den dolda sektionen
 - robots.txt (släpper in alla, inkl. GPTBot/ClaudeBot/PerplexityBot m.fl.) + sitemap.xml
-- Favicon: blackletter-"K" (Manufacturing Consent, utritad som path) i #F7F7F5 på grön rundad ruta — .github/workflows/ — IndexNow + Lighthouse CI; lighthouserc.json — Lighthouse-gränser; 576294f82ad8ed52e0685dad366b5ccf.txt — IndexNow-nyckel
-favicon.svg, favicon.ico (16/32/48), apple-touch-icon.png (180), icon-192/512.png, site.webmanifest
+- Favicon: blackletter-"K" (Manufacturing Consent, utritad som path) i #F7F7F5 på grön rundad ruta — favicon.svg, favicon.ico (16/32/48), apple-touch-icon.png (180), icon-192/512.png, site.webmanifest
 - <html lang="en"> (default engelska)
 
 ### Fas 6 — Besöksstatistik
@@ -161,7 +160,12 @@ CLAUDE.md — denna fil
 DESIGN.md — designsystemreferens (Kantarell v2)
 README.md — projektöversikt
 og-image.jpg — Open Graph-bild (1200×630) för länkförhandsvisningar
-kitadvisor_og-image.png — källbild i full upplösning (1670×942) för og-image.jpg
 llms.txt — maskinläsbar projektbeskrivning för AI-crawlers
 robots.txt, sitemap.xml — för sökmotorer
 favicon.svg, favicon.ico, apple-touch-icon.png, icon-192.png, icon-512.png, site.webmanifest — ikoner
+CNAME — custom domän för GitHub Pages
+576294f82ad8ed52e0685dad366b5ccf.txt — IndexNow-nyckel (måste ligga i roten)
+lighthouserc.json — Lighthouse CI-gränser
+.github/workflows/ — indexnow.yml (IndexNow + sitemap lastmod), lighthouse.yml (Lighthouse CI)
+.gitignore — OS-/editorfiler
+LICENSE — MIT, © Leo Genberg AB
