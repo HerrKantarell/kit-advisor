@@ -107,7 +107,7 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - Domän: kitadvisor.cc — Porkbun, Leo Genbergs AB
 - CONFIG.baseUrl = 'https://kitadvisor.cc'
 - SEO: meta description, OG-taggar, twitter:card, canonical, JSON-LD (WebApplication)
-- og:image: og-image.svg (1200×630, statisk SVG i repo-roten)
+- og:image: og-image.jpg (1200×630, JPG ~160 KB, skalad från kitadvisor_og-image.png). og-image.svg finns kvar men används inte (SVG stöds inte av Facebook/LinkedIn/X)
 - llms.txt i repo-roten (för AI-crawlers: Perplexity, ChatGPT m.fl.)
 - <html lang="en"> (default engelska)
 
@@ -149,5 +149,6 @@ index.html — hela applikationen
 CLAUDE.md — denna fil
 DESIGN.md — designsystemreferens (Kantarell v2)
 README.md — projektöversikt
-og-image.svg — Open Graph-bild (1200×630) för länkförhandsvisningar
+og-image.jpg — Open Graph-bild (1200×630) för länkförhandsvisningar
+kitadvisor_og-image.png — källbild i full upplösning (1670×942) för og-image.jpg
 llms.txt — maskinläsbar projektbeskrivning för AI-crawlers
