@@ -291,6 +291,9 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 .callout.danger { background: rgba(192,80,80,0.05); border-left-color: #c05050; }
 .callout p { font-size: 12px; line-height: 1.55; color: var(--k-ink); margin: 0; }
 .callout.danger p { color: #8a3030; }
+.model-row { font-family: var(--k-mono); font-size: 10px; color: var(--k-mid); margin: -2px 0 10px; display: flex; align-items: center; gap: 5px; }
+.model-row .ph { font-size: 12px; color: var(--k-orange); }
+.model-detail { display: block; font-family: var(--k-mono); font-size: 10px; color: var(--k-mid); line-height: 1.7; margin-top: 4px; }
 
 /* ── Kit rows ── */
 .kit-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: var(--k-border); }
@@ -1060,6 +1063,9 @@ const T = {
     ridePassed: 'Turen har passerat — visar senast tillgänglig data.',
     networkErr: 'Nätverksfel — kontrollera anslutningen.',
     forecastUncertain: 'Prognos med osäkerhet — uppdateras närmre startdagen.',
+    modelsAgree:    'DMI och MET är överens — stabil prognos.',
+    modelsDisagree: parts=>`Osäker prognos — DMI och MET är oense om ${parts}. Ta med ett extra lager.`,
+    modelParts:     { temp:'temperaturen', wind:'vinden', rain:'regnet', and:'och' },
     forecastUnavailable: d => `Prognos tillgänglig fr.o.m. ${d}.`,
     shareImageBtn: 'Dela som bild',
     imgModalTitle: 'Kit-kort',
@@ -1171,6 +1177,9 @@ const T = {
     ridePassed: 'This ride has passed — showing last available data.',
     networkErr: 'Network error — check your connection.',
     forecastUncertain: 'Forecast with uncertainty — check again closer to the ride.',
+    modelsAgree:    'DMI and MET agree — stable forecast.',
+    modelsDisagree: parts=>`Uncertain forecast — DMI and MET disagree on ${parts}. Bring an extra layer.`,
+    modelParts:     { temp:'temperature', wind:'wind', rain:'rain', and:'and' },
     forecastUnavailable: d => `Forecast available from ${d}.`,
     shareImageBtn: 'Share as image',
     imgModalTitle: 'Kit card',
@@ -1241,6 +1250,7 @@ map.getPane('windPane').style.pointerEvents = 'none';
 const windRenderer = L.canvas({ pane:'windPane', padding:0.5 });
 const windLines = L.layerGroup().addTo(map);
 let windField = null, windFieldReq = 0;
+let modelCmp = null, modelCmpReq = 0;
 map.on('zoomend', () => { if (windField) renderWindLines(); });
 
 map.on('click', e => selectLocation(e.latlng.lat, e.latlng.lng));
@@ -1350,6 +1360,7 @@ function placeMarker(lat,lng) {
   if(marker) map.removeLayer(marker);
   if(windMarker) { map.removeLayer(windMarker); windMarker=null; }
   windLines.clearLayers(); windField=null; windFieldReq++;
+  modelCmp=null; modelCmpReq++;
   marker = L.marker([lat,lng],{icon:pulseIcon}).addTo(map);
 }
 
@@ -1373,6 +1384,7 @@ async function selectLocation(lat, lng, opts = {}) {
     const [weather,name] = await Promise.all([fetchWeather(lat,lng,days), reverseGeocode(lat,lng)]);
     S.wxLive=weather; S.wx=weather;
     loadWindField();
+    loadModelCompare();
     if (!S.isShared || !S.locName) S.locName=name;
     setLocName(S.isShared ? (S.shareName||name) : name);
     if (S.isShared) {
@@ -1435,6 +1447,53 @@ function wxAtOffset(off) {
   if(!S.hourly||off===0) return S.wxLive;
   const idx=Math.min(S.hourly.nowIdx+off, S.hourly.temp.length-1);
   return { temp:S.hourly.temp[idx], wind:S.hourly.wind[idx], windDir:S.hourly.windDir?.[idx], gusts:S.hourly.gusts[idx], precip:S.hourly.precip[idx], humidity:S.hourly.humidity[idx], wcode:S.hourly.wcode[idx], ice:iceLevel(idx) };
+}
+
+// ─── MODEL COMPARE (DMI vs MET) ───────────────────────────
+// Regionala modeller utan global fallback → null utanför deras område, då döljs indikatorn
+const CMP_MODELS = { dmi:'dmi_harmonie_arome_europe', met:'metno_nordic' };
+
+async function loadModelCompare() {
+  const req = ++modelCmpReq;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${S.lat.toFixed(4)}&longitude=${S.lng.toFixed(4)}` +
+    `&hourly=temperature_2m,wind_speed_10m,precipitation&models=${Object.values(CMP_MODELS).join(',')}&wind_speed_unit=kmh` +
+    `&timezone=${encodeURIComponent(S.hourly?.tz || 'auto')}&forecast_days=${S.hourly?.days || 2}`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return;
+    const h = (await r.json()).hourly;
+    if (req !== modelCmpReq || !h || h.time?.[0] !== S.hourly?.times[0]) return;  // timindex måste matcha huvudanropet
+    const pick = m => ({ temp:h[`temperature_2m_${m}`], wind:h[`wind_speed_10m_${m}`], precip:h[`precipitation_${m}`] });
+    const dmi = pick(CMP_MODELS.dmi), met = pick(CMP_MODELS.met);
+    if (!dmi.temp || !met.temp) return;
+    modelCmp = { dmi, met };
+    renderAnalysis();
+  } catch { /* indikatorn är ett tillägg — ignorera fel */ }
+}
+
+// → null (ingen data för timmen) eller { dmi, met, diff:['temp'|'wind'|'rain'] }
+function modelSpread(idx) {
+  if (!modelCmp) return null;
+  const at = m => ({ t:m.temp?.[idx], w:m.wind?.[idx], p:m.precip?.[idx] });
+  const a = at(modelCmp.dmi), b = at(modelCmp.met);
+  if ([a.t, a.w, a.p, b.t, b.w, b.p].some(v => v == null)) return null;
+  const diff = [];
+  if (Math.abs(a.t - b.t) > 2) diff.push('temp');
+  if (Math.abs(a.w - b.w) > 8) diff.push('wind');
+  if ((a.p >= 0.3 && b.p < 0.1) || (b.p >= 0.3 && a.p < 0.1)) diff.push('rain');
+  return { dmi:a, met:b, diff };
+}
+
+function renderModelCompare() {
+  if (!S.hourly) return '';
+  const sp = modelSpread(Math.min(S.hourly.nowIdx + S.fcOffset, S.hourly.times.length - 1));
+  if (!sp) return '';
+  const row = (name, m) => `${name} ${fmtTemp(m.t, 0)} · ${fmtWind(m.w)} · ${m.p.toFixed(1)} mm`;
+  const detail = `<span class="model-detail">${row('DMI', sp.dmi)}<br>${row('MET', sp.met)}</span>`;
+  if (!sp.diff.length) return `<div class="model-row" title="${row('DMI', sp.dmi)} / ${row('MET', sp.met)}"><i class="ph ph-check-circle"></i>${t('modelsAgree')}</div>`;
+  const p = t('modelParts'), words = sp.diff.map(k => p[k]);
+  const parts = words.length > 1 ? `${words.slice(0, -1).join(', ')} ${p.and} ${words.at(-1)}` : words[0];
+  return `<div class="callout">${MANICULA}<p>${t('modelsDisagree')(parts)}${detail}</p></div>`;
 }
 
 // Halkrisk från marktemperatur (0 cm) — 0 = ingen, 1 = risk, 2 = trolig
@@ -1568,6 +1627,7 @@ function renderAnalysis() {
       </div>
       <div class="eff-number" style="color:${color}">${fmtEffTemp(eff)}</div>
     </div>
+    ${renderModelCompare()}
   `;
   renderKit(eff);
 }

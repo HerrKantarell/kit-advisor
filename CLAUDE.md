@@ -122,6 +122,15 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - Visas som separat callout (röd manicula, .callout.danger) överst i utrustningslistan. Påverkar INTE klädrådet
 - Strängar: T[lang].alerts.iceRisk / iceLikely
 
+### Fas 10 — Modellosäkerhet (DMI mot MET)
+- loadModelCompare() körs efter väderhämtningen i selectLocation() (som loadWindField): ett separat Open-Meteo-anrop med models=dmi_harmonie_arome_europe,metno_nordic, hourly temperature_2m/wind_speed_10m/precipitation, samma timezone/forecast_days som huvudanropet. Svarsnycklar har modellsuffix (temperature_2m_metno_nordic)
+- Regionala modeller utan global fallback (inte *_seamless) → null utanför Norden/Nordeuropa och bortom ca 2,5 dygn → indikatorn döljs
+- modelCmpReq-räknare mot sena svar; kontroll att time[0] matchar S.hourly.times[0]. Fel ignoreras tyst
+- modelSpread(idx): oense om |Δtemp| > 2°C, |Δvind| > 8 km/h, eller en modell ≥ 0.3 mm och den andra < 0.1 mm
+- renderModelCompare() under eff-kortet i analysen: överens → diskret .model-row med bock; oense → callout (grön manicula) + DMI/MET-värden i .model-detail. Följer prognosslidern. Påverkar INTE klädrådet
+- Modellnamnen kunde inte verifieras mot API:et från utvecklingsmiljön — om indikatorn aldrig syns, kontrollera modell-ID:n i Open-Meteos docs
+- Strängar: T[lang].modelsAgree, modelsDisagree(parts), modelParts
+
 ### Fas 5 — Namn, domän, SEO
 - Namn: Kit/Advisor (var Field/Trip)
 - Domän: kitadvisor.cc — Porkbun, Leo Genberg AB
