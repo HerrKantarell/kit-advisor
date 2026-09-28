@@ -12,6 +12,7 @@ rekommendationer baserade på effektiv temperatur (vindkyla + ansträngning).
 - Leaflet 1.9.4 (karta, CDN)
 - Open-Meteo API (väder, gratis, ingen nyckel)
 - Nominatim (reverse geocode, gratis)
+- Overpass API (overpass-api.de, OSM-data för belysningslagret, gratis, ingen nyckel)
 - Esri World Light Gray Base tiles (server.arcgisonline.com, attribution "Tiles © Esri")
 - Phosphor Icons 2.1.1 (CDN, endast regular-vikten: src/regular/style.css, laddas icke-blockerande)
 - Playfair Display (Google Fonts)
@@ -130,6 +131,15 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - renderModelCompare() under eff-kortet i analysen: överens → diskret .model-row med bock; oense → callout (grön manicula) + DMI/MET-värden i .model-detail. Följer prognosslidern. Påverkar INTE klädrådet
 - Modellnamnen kunde inte verifieras mot API:et från utvecklingsmiljön — om indikatorn aldrig syns, kontrollera modell-ID:n i Open-Meteos docs
 - Strängar: T[lang].modelsAgree, modelsDisagree(parts), modelParts
+
+### Fas 11 — Gatubelysning (OSM lit=*)
+- Knapp "Belysning" (#litBtn, ph-lightbulb) nere till höger på kartan; på mobil (≤640px) under sökfältet. Av som default, sparas inte
+- toggleLit() → loadLit(): Overpass-fråga `way[highway][lit]` (utom motorway/trunk/construction/proposed) för kartvyn pad(0.25), `out geom`. POST till overpass-api.de/api/interpreter
+- Bara vid zoom ≥ 14 (LIT_MIN_ZOOM) — annars visar knappen "Zooma in". Refetch på moveend (400 ms debounce) bara om vyn lämnat senast hämtade bbox. AbortController avbryter gamla anrop
+- Ritas på canvas i egen pane 'litPane' (z 340, under vindlinjerna): belyst = gul #D9A21B, lit=no/disused = streckad svart. Alla andra lit-värden (24/7, automatic, limited…) räknas som belysta
+- Vägar UTAN lit-tagg visas inte — de är oftast okända, inte mörka (står i knappens tooltip)
+- "© OpenStreetMap" läggs till i attributionen när lagret är på (ODbL-krav)
+- Påverkar INTE klädrådet. Strängar: T[lang].litBtn / litZoom / litLoading / litErr / litTip
 
 ### Fas 5 — Namn, domän, SEO
 - Namn: Kit/Advisor (var Field/Trip)
