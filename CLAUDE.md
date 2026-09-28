@@ -111,6 +111,17 @@ URL-parametrar: ?name=&date=&lat=&lng=&dur=&speed=&int=&loc=
 - Open-Meteo räknar varje koordinat som ett anrop mot gratisgränsen (10 000/dag per IP) — 49 per platsval
 - Strängar: T[lang].windHintLabel(dir), T[lang].windHintTip(dir), T[lang].windDirs[]
 
+### Fas 9 — Isvarning
+- API-anropet hämtar hourly soil_temperature_0cm (markytans temp) och dew_point_2m → S.hourly.soil / S.hourly.dew
+- iceLevel(idx) → 0 ingen, 1 risk, 2 trolig. Sparas som wx.ice (både live och via wxAtOffset, följer prognosslidern)
+  - Mark > 1°C → 0
+  - Underkylt regn/duggregn (wcode 56, 57, 66, 67) → 2
+  - Mark ≤ 0°C + nederbörd ≥ 0.1 mm senaste 3 h → 2
+  - Mark ≤ 1°C + nederbörd senaste 3 h → 1
+  - Mark ≤ 0°C + (daggpunkt ≥ markytans temp eller fukt > 90%) → 1 (rimfrost)
+- Visas som separat callout (röd manicula, .callout.danger) överst i utrustningslistan. Påverkar INTE klädrådet
+- Strängar: T[lang].alerts.iceRisk / iceLikely
+
 ### Fas 5 — Namn, domän, SEO
 - Namn: Kit/Advisor (var Field/Trip)
 - Domän: kitadvisor.cc — Porkbun, Leo Genberg AB

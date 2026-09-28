@@ -1033,6 +1033,8 @@ const T = {
       gusts:     g=>`Kraftiga byar (${g} km/h) — var försiktig på exponerade sträckor.`,
       longRide:  'Du kyls ned mot slutet. Ha ett extra lager i bakfickan.',
       startCold: 'Klä för hur det känns 15 min in på turen, inte vid starten.',
+      iceRisk:   'Risk för halka — marken är nära noll. Se upp i skuggiga partier, på broar och målade linjer.',
+      iceLikely: 'Trolig halka — marken är under noll och blöt. Dubbdäck, lägre däcktryck och försiktighet i kurvor.',
     },
     geoBtn: 'Hitta min plats',
     searchPlaceholder: 'Sök stad eller adress…',
@@ -1142,6 +1144,8 @@ const T = {
       gusts:     g=>`Strong gusts (${g} km/h) — be careful on exposed stretches.`,
       longRide:  'You will cool down toward the end. Keep a spare layer in your pocket.',
       startCold: 'Dress for how it feels 15 min in, not at the very start.',
+      iceRisk:   'Risk of ice — the ground is near freezing. Watch out in shade, on bridges and painted lines.',
+      iceLikely: 'Ice likely — the ground is below freezing and wet. Studded tyres, lower pressure, easy in the corners.',
     },
     geoBtn: 'Use my location',
     searchPlaceholder: 'Search city or address…',
@@ -1402,7 +1406,7 @@ function setStatus(state) {
 
 // ─── WEATHER FETCH ────────────────────────────────────────
 async function fetchWeather(lat, lng, days=2) {
-  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code&wind_speed_unit=kmh&timezone=auto&forecast_days=${days}`;
+  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,relative_humidity_2m,weather_code,soil_temperature_0cm,dew_point_2m&wind_speed_unit=kmh&timezone=auto&forecast_days=${days}`;
   const r=await fetch(url);
   if(!r.ok) throw new Error('API');
   const d=await r.json();
@@ -1421,15 +1425,31 @@ async function fetchWeather(lat, lng, days=2) {
     gusts:d.hourly.wind_gusts_10m,
     precip:d.hourly.precipitation, humidity:d.hourly.relative_humidity_2m,
     wcode:d.hourly.weather_code, nowIdx:nowIdx>=0?nowIdx:0,
+    soil:d.hourly.soil_temperature_0cm, dew:d.hourly.dew_point_2m,
     tz:d.timezone, days,
   };
-  return { temp:c.temperature_2m, wind:c.wind_speed_10m, windDir:c.wind_direction_10m, gusts:c.wind_gusts_10m, precip:c.precipitation, humidity:c.relative_humidity_2m, wcode:c.weather_code };
+  return { temp:c.temperature_2m, wind:c.wind_speed_10m, windDir:c.wind_direction_10m, gusts:c.wind_gusts_10m, precip:c.precipitation, humidity:c.relative_humidity_2m, wcode:c.weather_code, ice:iceLevel(S.hourly.nowIdx) };
 }
 
 function wxAtOffset(off) {
   if(!S.hourly||off===0) return S.wxLive;
   const idx=Math.min(S.hourly.nowIdx+off, S.hourly.temp.length-1);
-  return { temp:S.hourly.temp[idx], wind:S.hourly.wind[idx], windDir:S.hourly.windDir?.[idx], gusts:S.hourly.gusts[idx], precip:S.hourly.precip[idx], humidity:S.hourly.humidity[idx], wcode:S.hourly.wcode[idx] };
+  return { temp:S.hourly.temp[idx], wind:S.hourly.wind[idx], windDir:S.hourly.windDir?.[idx], gusts:S.hourly.gusts[idx], precip:S.hourly.precip[idx], humidity:S.hourly.humidity[idx], wcode:S.hourly.wcode[idx], ice:iceLevel(idx) };
+}
+
+// Halkrisk från marktemperatur (0 cm) — 0 = ingen, 1 = risk, 2 = trolig
+function iceLevel(idx) {
+  const h=S.hourly, surf=h?.soil?.[idx];
+  if(surf==null || surf>1) return 0;
+  const code=h.wcode[idx];
+  if([56,57,66,67].includes(code)) return 2;                  // underkylt regn/duggregn
+  let wet=false;                                              // nederbörd senaste 3 h
+  for(let i=Math.max(0,idx-3); i<=idx; i++) if(h.precip[i]>=0.1) wet=true;
+  if(surf<=0 && wet) return 2;
+  const dew=h.dew?.[idx];
+  if(wet) return 1;                                           // blött, mark nära noll
+  if(surf<=0 && ((dew!=null && dew>=surf) || h.humidity[idx]>90)) return 1;  // rimfrost
+  return 0;
 }
 
 // ─── REVERSE GEOCODE ──────────────────────────────────────
@@ -1573,6 +1593,8 @@ function renderKit(eff) {
   const isRain=w.precip>0.3||w.wcode>=51;
   const heavyRain=w.wcode>=65||w.precip>2;
   let rows='', callouts='';
+
+  if(w.ice) callouts+=`<div class="callout danger">${MANICULA_D}<p>${talert(w.ice===2?'iceLikely':'iceRisk')}</p></div>`;
 
   if(eff>=22) {
     rows+=krow('ph-t-shirt','upper','jersey_short');
